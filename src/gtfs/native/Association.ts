@@ -56,19 +56,27 @@ export class Association implements OverlayRecord {
     if (assoc.calendar.runsFrom.isBefore(assocCalendar.runsFrom)) {
       const before = assoc.calendar.clone(assoc.calendar.runsFrom, assocCalendar.runsFrom.clone().subtract(1, "days"));
 
-      schedules.push(assoc.clone(before, idGenerator.next().value));
+      if (!before.isEmpty) {
+        schedules.push(assoc.clone(before, idGenerator.next().value));
+      }
     }
 
     // if the associated train runs after the association has finished, clone the associated schedule for those dates
     if (assoc.calendar.runsTo.isAfter(assocCalendar.runsTo)) {
       const after = assoc.calendar.clone(assocCalendar.runsTo.clone().add(1, "days"), assoc.calendar.runsTo);
 
-      schedules.push(assoc.clone(after, idGenerator.next().value));
+      if (!after.isEmpty) {
+        schedules.push(assoc.clone(after, idGenerator.next().value));
+      }
     }
 
     // for each exclude day of the association
     for (const excludeDay of Object.values(assocCalendar.excludeDays)) {
-      schedules.push(assoc.clone(assoc.calendar.clone(excludeDay, excludeDay), idGenerator.next().value));
+      const excluded = assoc.calendar.clone(excludeDay.clone(), excludeDay.clone());
+
+      if (!excluded.isEmpty) {
+        schedules.push(assoc.clone(excluded, idGenerator.next().value));
+      }
     }
 
     return schedules;

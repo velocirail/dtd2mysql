@@ -25,6 +25,13 @@ export class ScheduleCalendar {
   }
 
   /**
+   * Returns true if the calendar does not run on any days e.g. the date range has been tightened beyond its bounds
+   */
+  public get isEmpty(): boolean {
+    return this.runsFrom.isAfter(this.runsTo);
+  }
+
+  /**
    * Count the number of days that the overlay shares with this schedule and return true if the max has been exceeded
    */
   public getOverlap(overlay: ScheduleCalendar): OverlapType {
@@ -59,7 +66,7 @@ export class ScheduleCalendar {
 
     const calendar = this.clone(this.runsFrom, this.runsTo, NO_DAYS, excludeDays);
 
-    return calendar.runsFrom.isSameOrBefore(calendar.runsTo) ? [calendar] : [];
+    return calendar.isEmpty ? [] : [calendar];
   }
 
   /**
@@ -97,7 +104,7 @@ export class ScheduleCalendar {
       ));
     }
 
-    return calendars.filter(c => c.runsFrom.isSameOrBefore(c.runsTo));
+    return calendars.filter(c => !c.isEmpty);
   }
 
   /**
@@ -111,12 +118,12 @@ export class ScheduleCalendar {
     const days = this.removeDays(removeDays);
 
     // skip forward to the first day the schedule is operating
-    while (days[start.day()] === 0 || excludeDays[start.format("YYYYMMDD")] && start.isSameOrBefore(end)) {
+    while ((days[start.day()] === 0 || excludeDays[start.format("YYYYMMDD")]) && start.isSameOrBefore(end)) {
       start.add(1, "days");
     }
 
     // skip backward to the first day the schedule is operating
-    while (days[end.day()] === 0  || excludeDays[end.format("YYYYMMDD")] && end.isSameOrAfter(start)) {
+    while ((days[end.day()] === 0 || excludeDays[end.format("YYYYMMDD")]) && end.isSameOrAfter(start)) {
       end.subtract(1, "days");
     }
 
