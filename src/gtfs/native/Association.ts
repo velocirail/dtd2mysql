@@ -45,6 +45,16 @@ export class Association implements OverlayRecord {
   }
 
   /**
+   * A join at the origin of the base service or a split at its destination is a stock working between two otherwise
+   * unrelated passenger services, so no through service should be created.
+   */
+  public appliesTo(base: Schedule): boolean {
+    return this.assocType === AssociationType.Split
+      ? base.destination !== this.assocLocation
+      : base.origin !== this.assocLocation;
+  }
+
+  /**
    * Apply the join or split to the associated schedule. Check for any days that the associated service runs but the
    * association does not and create additional schedules to cover those periods.
    */
