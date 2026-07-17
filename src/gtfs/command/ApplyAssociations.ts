@@ -30,8 +30,9 @@ export function applyAssociations(schedulesByTuid: ScheduleIndex,
           ? assocSchedule.calendar.shiftBackward()
           : assocSchedule.calendar;
 
-        // find the matching base record
-        const baseSchedules = findSchedules(schedulesByTuid[association.baseTUID] || [], baseCalendar);
+        // find the matching base record, ignoring any where the association would not form a through service
+        const baseSchedules = findSchedules(schedulesByTuid[association.baseTUID] || [], baseCalendar)
+          .filter(schedule => association.appliesTo(schedule));
 
         if (baseSchedules.length > 0) {
           const [replacement, ...associatedSchedules] = association.apply(baseSchedules[0], assocSchedule,idGenerator);

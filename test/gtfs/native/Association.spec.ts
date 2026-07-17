@@ -231,6 +231,65 @@ describe("Association", () => {
     chai.expect(result.stopTimes[3].stop_sequence).to.equal(4);
   });
 
+  it("does not apply joins at the origin of the base schedule", () => {
+    const base = schedule(1, "A", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "RAM", "19:00"),
+      stop(2, "DOV", "20:00"),
+      stop(3, "CHX", "21:00"),
+    ]);
+
+    const assoc = schedule(2, "B", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "CHX", "15:00"),
+      stop(2, "CBW", "16:00"),
+      stop(3, "RAM", "17:00"),
+    ]);
+
+    const join = association(base, assoc, AssociationType.Join, "RAM");
+    const split = association(base, assoc, AssociationType.Split, "RAM");
+
+    chai.expect(join.appliesTo(base)).to.equal(false);
+    chai.expect(split.appliesTo(base)).to.equal(true);
+  });
+
+  it("does not apply splits at the destination of the base schedule", () => {
+    const base = schedule(1, "A", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "CHX", "15:00"),
+      stop(2, "CBW", "16:00"),
+      stop(3, "RAM", "17:00"),
+    ]);
+
+    const assoc = schedule(2, "B", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "RAM", "19:00"),
+      stop(2, "DOV", "20:00"),
+      stop(3, "CHX", "21:00"),
+    ]);
+
+    const split = association(base, assoc, AssociationType.Split, "RAM");
+    const join = association(base, assoc, AssociationType.Join, "RAM");
+
+    chai.expect(split.appliesTo(base)).to.equal(false);
+    chai.expect(join.appliesTo(base)).to.equal(true);
+  });
+
+  it("applies joins and splits at intermediate calling points of the base schedule", () => {
+    const base = schedule(1, "A", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "RAM", "10:00"),
+      stop(2, "ASH", "11:00"),
+      stop(3, "CHX", "12:00"),
+    ]);
+
+    const assoc = schedule(2, "B", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "DOV", "10:00"),
+      stop(2, "ASH", "10:55"),
+    ]);
+
+    const join = association(base, assoc, AssociationType.Join, "ASH");
+    const split = association(base, assoc, AssociationType.Split, "ASH");
+
+    chai.expect(join.appliesTo(base)).to.equal(true);
+    chai.expect(split.appliesTo(base)).to.equal(true);
+  });
+
   it("creates a copy of the associated schedule where the association does not apply", () => {
     const base = schedule(1, "A", "2017-07-10", "2017-09-16", STP.Overlay, ALL_DAYS, [
       stop(1, "TON", "10:00"),

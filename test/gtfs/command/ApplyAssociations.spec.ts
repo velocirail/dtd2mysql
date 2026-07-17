@@ -79,6 +79,66 @@ describe("ApplyAssociations", () => {
     chai.expect(other).to.be.undefined;
   });
 
+  it("does not join two services where the join location is the origin of the base schedule", () => {
+    // afternoon service terminating at RAM, where the evening base service starts (planarnetwork/dtd2mysql#80)
+    const base = schedule(1, "A", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "RAM", "19:00"),
+      stop(2, "DOV", "20:00"),
+      stop(3, "CHX", "21:00"),
+    ]);
+
+    const assoc = schedule(2, "B", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "CHX", "15:00"),
+      stop(2, "CBW", "16:00"),
+      stop(3, "RAM", "17:00"),
+    ]);
+
+    const calendar = new ScheduleCalendar(moment("2017-07-01"), moment("2017-07-31"), ALL_DAYS);
+    const association1 = association("A", "B", AssociationType.Join, "RAM", DateIndicator.Same, calendar);
+
+    const resultByTuid = applyAssociations(
+      applyOverlays([base, assoc]) as ScheduleIndex,
+      applyOverlays([association1]) as AssociationIndex,
+      idGenerator()
+    );
+
+    // both schedules remain as separate services and no merged schedule is created
+    chai.expect(resultByTuid["B_A"]).to.be.undefined;
+    chai.expect(resultByTuid["A"]).to.have.length(1);
+    chai.expect(resultByTuid["A"][0].stopTimes.map(s => s.stop_id)).to.deep.equal(["RAM", "DOV", "CHX"]);
+    chai.expect(resultByTuid["B"]).to.have.length(1);
+    chai.expect(resultByTuid["B"][0].stopTimes.map(s => s.stop_id)).to.deep.equal(["CHX", "CBW", "RAM"]);
+  });
+
+  it("does not split two services where the split location is the destination of the base schedule", () => {
+    const base = schedule(1, "A", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "CHX", "15:00"),
+      stop(2, "CBW", "16:00"),
+      stop(3, "RAM", "17:00"),
+    ]);
+
+    const assoc = schedule(2, "B", "2017-07-10", "2017-07-16", STP.Overlay, ALL_DAYS, [
+      stop(1, "RAM", "19:00"),
+      stop(2, "DOV", "20:00"),
+      stop(3, "CHX", "21:00"),
+    ]);
+
+    const calendar = new ScheduleCalendar(moment("2017-07-01"), moment("2017-07-31"), ALL_DAYS);
+    const association1 = association("A", "B", AssociationType.Split, "RAM", DateIndicator.Same, calendar);
+
+    const resultByTuid = applyAssociations(
+      applyOverlays([base, assoc]) as ScheduleIndex,
+      applyOverlays([association1]) as AssociationIndex,
+      idGenerator()
+    );
+
+    chai.expect(resultByTuid["A_B"]).to.be.undefined;
+    chai.expect(resultByTuid["A"]).to.have.length(1);
+    chai.expect(resultByTuid["A"][0].stopTimes.map(s => s.stop_id)).to.deep.equal(["CHX", "CBW", "RAM"]);
+    chai.expect(resultByTuid["B"]).to.have.length(1);
+    chai.expect(resultByTuid["B"][0].stopTimes.map(s => s.stop_id)).to.deep.equal(["RAM", "DOV", "CHX"]);
+  });
+
 });
 
 const ALL_DAYS: Days = { 0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1 };
