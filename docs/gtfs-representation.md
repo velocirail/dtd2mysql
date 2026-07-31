@@ -4,11 +4,15 @@
 
 The timetable feed can be expressed in valid, semantically useful GTFS, and with a few
 changes this exporter's output could be made spec-pure. But that mapping is one-way and
-lossy: it discards train identity, the physical join/split of trains, platform-level
-granularity and every operational attribute. Two other classes of data — time-restricted
-fixed links, and the fares/routeing guide feeds — have no representation in the GTFS
-reference at all. The exporter already concedes this by emitting a non-standard
-`links.txt` (`src/cli/OutputGTFSCommand.ts:45`, `src/gtfs/file/FixedLink.ts:5`).
+lossy: it discards train identity, platform-level granularity and every operational
+attribute. Two other classes of data — time-restricted fixed links, and the
+fares/routeing guide feeds — have no representation in the GTFS reference at all. The
+exporter already concedes this by emitting a non-standard `links.txt`
+(`src/cli/OutputGTFSCommand.ts:45`, `src/gtfs/file/FixedLink.ts:5`).
+
+Train joins and splits are a notable exception to the pessimism: GTFS added linked trips
+(`transfer_type=4`) specifically for this, so associations are representable properly —
+just not by the mechanism this exporter currently uses. See below.
 
 ## Scope and method
 
@@ -18,7 +22,8 @@ means the files and fields in the GTFS Schedule reference — no extensions, no 
 no out-of-vocabulary enum values.
 
 This is an evaluation by reading the DTD record definitions in `config/` against the
-export path in `src/gtfs/`, and both against the GTFS reference. Nothing was validated
+export path in `src/gtfs/`, and both against the GTFS reference (quotations are from
+`gtfs/spec/en/reference.md` in google/transit at time of writing). Nothing was validated
 against a real feed: the exporter needs a populated MySQL database from a licensed feed
 download, which this environment does not have. Claims about the code are cited by file
 and line; claims about live output are not made.
@@ -78,25 +83,70 @@ What is lost:
   every publication is a full snapshot. This is a fundamental format difference, not a
   gap in this tool.
 
-### Associations (train joins and splits)
+### Associations (train joins and splits) — representable, but not the way it's done now
 
 A `VV`/`JJ` association says one physical train splits into two portions, or two trains
-join. GTFS has no vocabulary for this. `ApplyAssociations` handles it by materialising a
-combined trip — base portion before the split point, then the associated portion after —
-and keeping the original schedule alive for the dates the association doesn't apply
-(`src/gtfs/native/Association.ts:80-135`).
+join. **GTFS does have vocabulary for this.** `transfer_type=4` ("in-seat transfer")
+links trips that are operated by the same vehicle, and the reference is explicit that
+"the vehicle MAY be coupled to, or uncoupled from, other vehicles". Links may be 1-to-n
+and n-to-1, and the spec's own worked example is two train trips merging into one "after
+a vehicle coupling operation at a common station" — a UK-style join, described in the
+spec in those words. `from_trip_id` and `to_trip_id` are required for `transfer_type` 4
+and 5; the stop IDs become optional. The reference also states that where a `block_id`
+and a linked-trips transfer conflict, the transfer wins, and that in-seat transfers
+should be expressed this way rather than via blocks.
 
-For journey planning this is the right answer, and it is the only answer GTFS allows.
-But it is not a correct model of reality:
+This is upstream issue
+[planarnetwork/dtd2mysql#81](https://github.com/planarnetwork/dtd2mysql/issues/81),
+open since March 2024.
+
+What the exporter does instead is materialise a **combined trip** — base portion before
+the split point, then the associated portion after — keeping the original schedule alive
+for the dates the association doesn't apply (`src/gtfs/native/Association.ts:80-135`).
+That is valid GTFS and works in naive consumers, but it is strictly more lossy than
+linked trips:
 
 - The shared portion of the journey is **duplicated across two trips**. Any consumer
-  summing capacity, counting vehicles, or drawing a service diagram double-counts.
-- A passenger cannot be told "stay in your seat, your coaches continue to X" — the
-  through-portion relationship is exactly what was erased.
+  summing capacity, counting vehicles, or drawing a service diagram double-counts. With
+  `transfer_type=4` the shared portion is one trip and is not duplicated at all.
+- Concatenating stop sequences can fabricate journeys that don't exist. Upstream issue
+  [#80](https://github.com/planarnetwork/dtd2mysql/issues/80) reports exactly this: a
+  join at the *start* of the base schedule produced a bogus circular service across Kent.
+  Linked trips cannot produce that failure, because no concatenation happens.
 - `DateIndicator.Previous` (`P`) is defined (`Association.ts:196`) but never handled:
   only `Next` is special-cased in `ApplyAssociations.ts:22-31` and
   `Association.ts:52,117,145`, so `P` associations are silently treated as same-day. Rare
   in practice, wrong when it occurs.
+
+The genuine difficulty with linked trips is not expressiveness but **calendar identity**.
+The spec requires that in a 1-to-n continuation every `to_trip_id` share an identical
+`trips.service_id`, and in an n-to-1 continuation every `from_trip_id` does. DTD
+associations carry their own calendar, independent of the calendars of the two schedules
+they join, and STP flattening then fragments all three into different exclude-day sets
+(`ApplyOverlays.ts:47-58`). Two portions of one split can easily end up on
+non-identical service IDs, which the constraint forbids. Satisfying it means reconciling
+the association calendar against both schedule calendars and emitting a common service
+ID per continuation — real work, but bounded work, and not a limitation of GTFS.
+
+The other cost is consumer support: `transfer_type=4` is newer and unevenly implemented,
+whereas a pre-merged through trip works everywhere. That is a defensible reason to keep
+the current behaviour, but it is a compatibility argument, not a representability one.
+
+### Change en route (CR records)
+
+A CR record changes a train's category, identity, class, reservations, catering or RSID
+part-way through the journey (`config/timetable/file/MCA.ts:181-209`). A GTFS trip has
+exactly one route, one route type and one attribute set for its whole length, so the
+change point has to become a trip boundary.
+
+That sounds like it breaks the through journey, but linked trips fix it for the same
+reason they fix associations: split the trip at the CR point into two trips carrying the
+different attributes, then join them with a `transfer_type=4` transfer. Same vehicle, no
+alighting, and the passenger-facing continuity is preserved. The same 1-to-1 service ID
+considerations apply.
+
+The exporter imports CR into `service_change` and ignores it — `service_change` appears
+nowhere in `src/`.
 
 ### Platform and TIPLOC granularity
 
@@ -154,15 +204,6 @@ pair, but not by agency pair, so expressing this means enumerating the cross-pro
 every route of the first operator against every route of the second, at that station.
 Finite, so arguably "representable", but combinatorially absurd. The exporter imports the
 file and never uses it — `toc_interchange` appears nowhere in `src/`.
-
-### Change en route (CR records)
-
-A CR record changes a train's category, identity, class, reservations, catering or RSID
-part-way through the journey (`config/timetable/file/MCA.ts:181-209`). A GTFS trip has
-exactly one route, one route type and one attribute set for its whole length. The only
-pure options are to split the trip in two — breaking the through journey, which is the
-thing the passenger cares about — or to ignore the change. The exporter imports CR into
-`service_change` and ignores it.
 
 ### Operational and commercial attributes
 
@@ -244,10 +285,15 @@ is a real and useful property, and it is what this exporter delivers. Making the
 What GTFS can never carry, at any level of effort:
 
 1. Time-restricted, mode-typed fixed links (ALF/FLF).
-2. Train identity and the physical join/split relationship between portions.
-3. Mid-journey service changes (CR).
-4. Every commercial and operational attribute — class, reservations, sleepers, catering.
-5. The entire fares feed and routeing guide.
+2. Every commercial and operational attribute — class, reservations, sleepers, catering,
+   power type, branding.
+3. The entire fares feed and routeing guide.
+
+Note what is *not* on that list. Joins, splits and mid-journey service changes are all
+expressible with linked trips (`transfer_type=4`) — they are currently lost because of
+how this exporter works, not because GTFS lacks the vocabulary. Platform granularity is
+the same story: `parent_station` plus `platform_code` would carry it. Those are the
+tractable improvements, and upstream #81 already tracks the first.
 
 So the accurate framing is not "can DTD be represented as GTFS" but "GTFS is a lossy
 projection of DTD suitable for journey-plan *rendering*, not a substitute for the feed."
