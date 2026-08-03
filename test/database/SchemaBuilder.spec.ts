@@ -89,7 +89,7 @@ describe("SchemaBuilder", () => {
       '"field5" date not null, ' +
       '"field6" time, ' +
       '"field7" smallint not null, ' +
-      '"field8" numeric(7, 5) not null, ' +
+      '"field8" double precision not null, ' +
       'constraint "test_key" unique ("field", "field4"))'
     );
   });
