@@ -27,10 +27,11 @@ Import a DTD feed into a MySQL compatible database
   
 The following environment properties are expected to be set:
   
-  DATABASE_USERNAME          mysql username (defaults to root)
-  DATABASE_PASSWORD          mysql password (defaults to none)
-  DATABASE_NAME              mysql database name
-  DATABASE_HOSTNAME          mysql database host (defaults to localhost)
+  DATABASE_DIALECT           mysql, postgres or sqlite (defaults to mysql)
+  DATABASE_USERNAME          database username (defaults to root)
+  DATABASE_PASSWORD          database password (defaults to none)
+  DATABASE_NAME              database name, or the file name for sqlite (":memory:" is allowed)
+  DATABASE_HOSTNAME          database host (defaults to localhost)
   
 The --get-* and --download-* commands require SFTP environment properties:
 

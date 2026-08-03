@@ -1,10 +1,14 @@
 import memoize from "memoized-class-decorator";
+import {Kysely, MysqlDialect} from "kysely";
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import {CLICommand} from "./CLICommand";
 import {ImportFeedCommand} from "./ImportFeedCommand";
 import {DatabaseConfiguration, DatabaseConnection} from "../database/DatabaseConnection";
+import {DialectName, dialectNames, SchemaDialect} from "../database/SchemaDialect";
+import {getSchemaDialect} from "../database/dialect";
+import {NodeSqliteDialect} from "../database/NodeSqliteDriver";
 import config from "../../config";
 import {CleanFaresCommand} from "./CleanFaresCommand";
 import {ShowHelpCommand} from "./ShowHelpCommand";
@@ -48,22 +52,22 @@ export class Container {
 
   @memoize
   public async getFaresImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getRouteingImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getTimetableImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getNFM64ImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
 
@@ -168,17 +172,60 @@ export class Container {
     });
   }
 
+  /**
+   * The row writer and the GTFS queries still speak MySQL directly, so anything that needs them fails here
+   * rather than further down with a confusing connection error
+   */
   @memoize
   public getDatabaseConnection(): DatabaseConnection {
+    const { dialect } = this.databaseConfiguration;
+
+    if (dialect !== "mysql") {
+      throw new Error(`Only the schema layer supports ${dialect}, everything else still requires mysql.`);
+    }
+
     return require('mysql2/promise').createPool({
-      ...this.databaseConfiguration,
+      ...this.driverConfiguration,
       //debug: ['ComQueryPacket', 'RowDataPacket']
     });
   }
 
   @memoize
   public getDatabaseStream() {
-    return require('mysql2').createPool(this.databaseConfiguration);
+    return require('mysql2').createPool(this.driverConfiguration);
+  }
+
+  @memoize
+  public getSchemaDialect(): SchemaDialect {
+    return getSchemaDialect(this.databaseConfiguration.dialect);
+  }
+
+  /**
+   * The schema layer talks to the database through Kysely so that it can target more than just MySQL.
+   *
+   * MySQL shares the streaming pool rather than opening a third one.
+   */
+  @memoize
+  public getKysely(): Kysely<any> {
+    const configuration = this.databaseConfiguration;
+
+    switch (configuration.dialect) {
+      case "mysql":
+        return new Kysely({ dialect: new MysqlDialect({ pool: this.getDatabaseStream() }) });
+      case "sqlite":
+        return new Kysely({ dialect: new NodeSqliteDialect(configuration.database) });
+      case "postgres":
+        throw new Error("The postgres driver is not wired up yet, only the schema layer supports it.");
+    }
+  }
+
+  /**
+   * The database configuration without the fields that mysql2 does not understand
+   */
+  private get driverConfiguration() {
+    const { dialect, ...configuration } = this.databaseConfiguration;
+
+    return configuration;
   }
 
   public get databaseConfiguration(): DatabaseConfiguration {
@@ -187,6 +234,7 @@ export class Container {
     }
 
     return {
+      dialect: getDialectName(),
       host: process.env.DATABASE_HOSTNAME || "localhost",
       user: process.env.DATABASE_USERNAME || "root",
       password: process.env.DATABASE_PASSWORD || null,
@@ -200,4 +248,17 @@ export class Container {
     };
   }
 
+}
+
+/**
+ * The database the CLI is pointed at, defaulting to MySQL for backwards compatibility
+ */
+function getDialectName(): DialectName {
+  const name = process.env.DATABASE_DIALECT || "mysql";
+
+  if (!dialectNames.includes(name as DialectName)) {
+    throw new Error(`Unknown DATABASE_DIALECT "${name}", expected one of ${dialectNames.join(", ")}.`);
+  }
+
+  return name as DialectName;
 }
