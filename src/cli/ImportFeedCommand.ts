@@ -3,7 +3,9 @@ import * as fs from 'fs';
 import {CLICommand} from "./CLICommand";
 import {FeedConfig} from "../../config";
 import {FeedFile} from "../feed/file/FeedFile";
-import {MySQLSchema} from "../database/MySQLSchema";
+import {Kysely, sql} from "kysely";
+import {createLogSchema, LOG_TABLE, SchemaBuilder} from "../database/SchemaBuilder";
+import {SchemaDialect} from "../database/SchemaDialect";
 import {DatabaseConnection} from "../database/DatabaseConnection";
 import * as path from "path";
 import {MySQLTable} from "../database/MySQLTable";
@@ -24,6 +26,8 @@ export class ImportFeedCommand implements CLICommand {
 
   constructor(
     private readonly db: DatabaseConnection,
+    private readonly schemaDb: Kysely<any>,
+    private readonly schemaDialect: SchemaDialect,
     private readonly files: FeedConfig,
     private readonly tmpFolder: string
   ) { }
@@ -88,13 +92,7 @@ export class ImportFeedCommand implements CLICommand {
    * Create the last_file table (if it doesn't already exist)
    */
   private async createLastProcessedSchema(): Promise<void> {
-    await this.db.query(`
-      CREATE TABLE IF NOT EXISTS log ( 
-        id INT(11) unsigned not null primary key auto_increment, 
-        filename VARCHAR(255), 
-        processed DATETIME 
-      )
-    `);
+    await createLogSchema(this.schemaDb, this.schemaDialect);
   }
 
   /**
@@ -118,7 +116,10 @@ export class ImportFeedCommand implements CLICommand {
 
 
   private async updateLastFile(filename: string): Promise<void> {
-    await this.db.query("INSERT INTO log VALUES (null, ?, NOW())", [filename]);
+    await this.schemaDb
+      .insertInto(LOG_TABLE)
+      .values({ filename, processed: sql`current_timestamp` })
+      .execute();
   }
 
   /**
@@ -147,8 +148,8 @@ export class ImportFeedCommand implements CLICommand {
   }
 
   @memoize
-  private schemas(file: FeedFile): MySQLSchema[] {
-    return file.recordTypes.map(record => new MySQLSchema(this.db, record));
+  private schemas(file: FeedFile): SchemaBuilder[] {
+    return file.recordTypes.map(record => new SchemaBuilder(this.schemaDb, this.schemaDialect, record));
   }
 
   @memoize
@@ -169,8 +170,8 @@ export class ImportFeedCommand implements CLICommand {
   /**
    * Close the underling database connection
    */
-  public end(): Promise<void> {
-    return this.db.end();
+  public async end(): Promise<void> {
+    await Promise.all([this.db.end(), this.schemaDb.destroy()]);
   }
 
 }

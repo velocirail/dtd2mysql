@@ -45,6 +45,7 @@
     "adm-zip": "0.6.0",
     "byline": "5.0.0",
     "csv-write-stream": "2.0.0",
+    "kysely": "0.29.4",
     "memoized-class-decorator": "1.6.1",
     "mysql2": "3.23.0",
     "proj4": "2.20.9",
