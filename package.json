@@ -17,7 +17,8 @@
     "start": "tsx ./src/index.ts",
     "prepublishOnly": "tsc -p ./ --outDir dist/",
     "gtfs": "tsx ./src/index.ts --gtfs",
-    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip"
+    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip",
+    "generate-types": "tsx ./scripts/generate-types.ts"
   },
   "repository": {
     "type": "git",
@@ -52,6 +53,7 @@
     "ssh2": "1.17.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "@types/adm-zip": "0.5.8",
     "@types/byline": "4.2.36",
     "@types/csv-write-stream": "2.0.3",

@@ -9,6 +9,7 @@ import {DatabaseConfiguration, DatabaseConnection} from "../database/DatabaseCon
 import {DialectName, dialectNames, SchemaDialect} from "../database/SchemaDialect";
 import {getSchemaDialect} from "../database/dialect";
 import {NodeSqliteDialect} from "../database/NodeSqliteDriver";
+import {Database} from "../database/Database";
 import config from "../../config";
 import {CleanFaresCommand} from "./CleanFaresCommand";
 import {ShowHelpCommand} from "./ShowHelpCommand";
@@ -206,7 +207,7 @@ export class Container {
    * MySQL shares the streaming pool rather than opening a third one.
    */
   @memoize
-  public getKysely(): Kysely<any> {
+  public getKysely(): Kysely<Database> {
     const configuration = this.databaseConfiguration;
 
     switch (configuration.dialect) {
