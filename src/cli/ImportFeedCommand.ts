@@ -6,6 +6,7 @@ import {FeedFile} from "../feed/file/FeedFile";
 import {Kysely, sql} from "kysely";
 import {createLogSchema, LOG_TABLE, SchemaBuilder} from "../database/SchemaBuilder";
 import {SchemaDialect} from "../database/SchemaDialect";
+import {Database} from "../database/Database";
 import {DatabaseConnection} from "../database/DatabaseConnection";
 import * as path from "path";
 import {MySQLTable} from "../database/MySQLTable";
@@ -26,7 +27,7 @@ export class ImportFeedCommand implements CLICommand {
 
   constructor(
     private readonly db: DatabaseConnection,
-    private readonly schemaDb: Kysely<any>,
+    private readonly schemaDb: Kysely<Database>,
     private readonly schemaDialect: SchemaDialect,
     private readonly files: FeedConfig,
     private readonly tmpFolder: string
@@ -118,7 +119,7 @@ export class ImportFeedCommand implements CLICommand {
   private async updateLastFile(filename: string): Promise<void> {
     await this.schemaDb
       .insertInto(LOG_TABLE)
-      .values({ filename, processed: sql`current_timestamp` })
+      .values({ filename, processed: sql<string>`current_timestamp` })
       .execute();
   }
 

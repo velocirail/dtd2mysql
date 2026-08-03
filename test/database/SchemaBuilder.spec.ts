@@ -22,30 +22,10 @@ import {SchemaDialect} from "../../src/database/SchemaDialect";
 import {mysqlSchemaDialect, postgresSchemaDialect, sqliteSchemaDialect} from "../../src/database/dialect";
 import {NodeSqliteDialect} from "../../src/database/NodeSqliteDriver";
 import {Record} from "../../src/feed/record/Record";
-import config, {FeedConfig} from "../../config";
-import {FixedWidthRecord} from "../../src/feed/record/FixedWidthRecord";
-import {IntField, ZeroFillIntField} from "../../src/feed/field/IntField";
-import {TextField, VariableLengthText} from "../../src/feed/field/TextField";
-import {DateField} from "../../src/feed/field/DateField";
-import {TimeField} from "../../src/feed/field/TimeField";
-import {BooleanField} from "../../src/feed/field/BooleanField";
-import {DoubleField} from "../../src/feed/field/DoubleField";
+import {feedRecords, intRecord, testRecord} from "./records";
 
 describe("SchemaBuilder", () => {
-  const record = new FixedWidthRecord(
-    "test",
-    ["field", "field4"], {
-      "field": new IntField(0, 4),
-      "field2": new ZeroFillIntField(1, 3),
-      "field3": new TextField(2, 5),
-      "field4": new VariableLengthText(3, 5),
-      "field5": new DateField(7),
-      "field6": new TimeField(7, 4),
-      "field7": new BooleanField(7),
-      "field8": new DoubleField(7, 7, 5),
-    },
-    ["field5", "field6"]
-  );
+  const record = testRecord();
 
   it("drops a table", async () => {
     const [statement] = await compile(mysqlSchemaDialect, record, schema => schema.dropSchema());
@@ -177,17 +157,6 @@ describe("SchemaBuilder", () => {
   });
 
 });
-
-/**
- * Every record type across all of the feeds
- */
-function feedRecords(): Record[] {
-  const feeds: FeedConfig[] = Object.values(config);
-
-  return feeds.flatMap(feed => Object.values(feed).flatMap(file => file.recordTypes));
-}
-
-const intRecord = (length: number) => new FixedWidthRecord("ints", [], { "sized": new IntField(0, length) }, []);
 
 /**
  * Run a schema operation against a driver that records the SQL instead of executing it
