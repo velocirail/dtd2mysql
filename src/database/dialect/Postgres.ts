@@ -3,6 +3,14 @@ import {FieldType, getErrorCode, SchemaDialect} from "../SchemaDialect";
 
 const DUPLICATE_TABLE = "42P07";
 
+/**
+ * Postgres returns date and timestamp columns as Date objects built in the local timezone, which is exactly
+ * what dateStrings: true avoids on MySQL. Wiring the pg driver will need type parsers that leave them as
+ * strings, otherwise reading a date back depends on the timezone of the machine reading it:
+ *
+ *   pg.types.setTypeParser(1082, value => value) // date
+ *   pg.types.setTypeParser(1114, value => value) // timestamp
+ */
 export const postgresSchemaDialect: SchemaDialect = {
 
   name: "postgres",
@@ -14,7 +22,8 @@ export const postgresSchemaDialect: SchemaDialect = {
       case "boolean": return sql.raw("smallint");
       case "date": return sql.raw("date");
       case "time": return sql.raw("time");
-      case "double": return sql.raw(`numeric(${field.length}, ${field.decimalDigits})`);
+      // numeric would be returned as a string by pg, double precision matches both MySQL and the parsed field
+      case "double": return sql.raw("double precision");
       case "int": return sql.raw(intType(field.length));
       case "foreignKey": return sql.raw("integer");
     }
