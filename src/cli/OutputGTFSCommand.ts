@@ -14,6 +14,12 @@ import * as fs from "fs";
 import {addLateNightServices} from "../gtfs/command/AddLateNightServices";
 import {finished} from "node:stream/promises";
 
+/**
+ * How far ahead of the import date schedules are exported, as a mysql interval expression. Anything beyond this point
+ * is omitted, so overlays and cancellations that start later are not applied to the schedules they modify.
+ */
+export const DEFAULT_GTFS_RANGE = "3 MONTH";
+
 export class OutputGTFSCommand implements CLICommand {
   private baseDir!: string;
 
@@ -35,9 +41,10 @@ export class OutputGTFSCommand implements CLICommand {
     if (Object.hasOwn(process.env, "GTFS_RANGE")) {
       console.log(`Using GTFS_RANGE = ${process.env.GTFS_RANGE}\n`);
     }
-    const range = process.env.GTFS_RANGE || "3 MONTH";
+    const range = process.env.GTFS_RANGE || DEFAULT_GTFS_RANGE;
 
-    const associationsP = this.repository.getAssociations();
+    // schedules, z-trains and associations must all use the same range or the output will be internally inconsistent
+    const associationsP = this.repository.getAssociations(range);
     const scheduleResultsP = this.repository.getSchedules(range);
     const transfersP = this.copy(this.repository.getTransfers(), "transfers.txt");
     const stopsP = this.copy(this.repository.getStops(), "stops.txt");

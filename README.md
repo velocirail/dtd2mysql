@@ -115,6 +115,18 @@ The timetable data does not map to a relational database in a very logical fashi
 Only schedule records that **start** up to 3 months into the future (using date of import as a reference point) are exported to GTFS for performance reasons.
 This will cause any data after that point to be either incomplete or incorrect, as override/cancellation records after that will be ignored as well.
 
+The cutoff can be moved with the `GTFS_RANGE` environment variable, which takes a MySQL interval expression and applies
+to schedules, z-trains and associations alike:
+
+```
+GTFS_RANGE="6 MONTH" dtd2mysql --gtfs-zip filename-of-gtfs.zip
+```
+
+Note that this value is interpolated directly into SQL and is **not sanitized**, so it must not come from untrusted
+input. Widening the range increases both the export time and the memory used to process overlays, and the `schedule`
+table is only indexed on `runs_from`, so a much longer range may warrant an index on `runs_to` as well. Widening the
+range does not fix the incorrectness described above — it only moves the point at which it begins.
+
 ## Contributing
 
 Issues and PRs are very welcome. To get the project set up run

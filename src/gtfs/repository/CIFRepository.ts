@@ -75,11 +75,15 @@ export class CIFRepository {
   /**
    * Return the schedules and z trains. These queries probably require some explanation:
    *
-   * The first query selects the stop times for all passenger services between now and + 3 months. It's important that
-   * the stop time location is mapped to physical stations to avoid getting fake CRS codes from the tiploc data.
+   * The first query selects the stop times for all passenger services between now and the end of the range. It's
+   * important that the stop time location is mapped to physical stations to avoid getting fake CRS codes from the
+   * tiploc data.
    *
-   * The second query selects all the z-trains (usually replacement buses) within three months. They already use CRS
+   * The second query selects all the z-trains (usually replacement buses) within the same range. They already use CRS
    * codes as the location so avoid the disaster above.
+   *
+   * Both queries must use the same range, otherwise replacement services disappear part way through the feed while
+   * the passenger services they replace continue.
    *
    * The argument range is a mysql expression like '3 MONTH'.
    *   It is NOT SANITIZED so it cannot be untrusted user input.
@@ -121,7 +125,7 @@ export class CIFRepository {
         FROM z_schedule
         LEFT JOIN z_schedule_extra ON z_schedule.id = z_schedule_extra.schedule
         JOIN z_stop_time ON z_schedule.id = z_stop_time.z_schedule
-        WHERE runs_from < CURDATE() + INTERVAL 3 MONTH
+        WHERE runs_from < CURDATE() + INTERVAL ${range}
         AND runs_to >= CURDATE()
         ORDER BY stop_id
       `))
@@ -131,9 +135,15 @@ export class CIFRepository {
   }
 
   /**
-   * Get associations
+   * Get associations.
+   *
+   * The range must match the one given to getSchedules or trips that join or split beyond the association cutoff will
+   * be emitted as unassociated portions.
+   *
+   * The argument range is a mysql expression like '3 MONTH'.
+   *   It is NOT SANITIZED so it cannot be untrusted user input.
    */
-  public async getAssociations(): Promise<Association[]> {
+  public async getAssociations(range: string): Promise<Association[]> {
     const [results] = await this.db.query<AssociationRow>(`
       SELECT 
         a.id AS id, base_uid, assoc_uid, crs_code, assoc_date_ind, assoc_cat,
@@ -141,7 +151,7 @@ export class CIFRepository {
         start_date, end_date, stp_indicator
       FROM association a
       JOIN tiploc ON assoc_location = tiploc_code
-      WHERE start_date < CURDATE() + INTERVAL 3 MONTH
+      WHERE start_date < CURDATE() + INTERVAL ${range}
       AND end_date >= CURDATE()
       ORDER BY stp_indicator DESC, id
     `);
