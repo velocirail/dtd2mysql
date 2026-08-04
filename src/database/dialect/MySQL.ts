@@ -7,7 +7,7 @@ export const mysqlSchemaDialect: SchemaDialect = {
 
   name: "mysql",
 
-  columnType(field: FieldType): Expression<any> {
+  columnType(field: FieldType): Expression<unknown> {
     switch (field.type) {
       case "text": return sql.raw(field.variableLength ? `varchar(${field.length})` : `char(${field.length})`);
       case "boolean": return sql.raw("tinyint(1) unsigned");
@@ -19,7 +19,7 @@ export const mysqlSchemaDialect: SchemaDialect = {
     }
   },
 
-  addIdColumn(table: CreateTableBuilder<any, any>): CreateTableBuilder<any, any> {
+  addIdColumn<TB extends string, C extends string>(table: CreateTableBuilder<TB, C>): CreateTableBuilder<TB, C | "id"> {
     return table.addColumn("id", sql.raw("int(11) unsigned"), col => col.notNull().autoIncrement().primaryKey());
   },
 

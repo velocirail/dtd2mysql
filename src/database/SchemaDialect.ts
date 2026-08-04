@@ -38,12 +38,12 @@ export interface SchemaDialect {
   /**
    * The column type used to store the given field
    */
-  columnType(field: FieldType): Expression<any>;
+  columnType(field: FieldType): Expression<unknown>;
 
   /**
    * Add the auto incrementing surrogate primary key to the table
    */
-  addIdColumn(table: CreateTableBuilder<any, any>): CreateTableBuilder<any, any>;
+  addIdColumn<TB extends string, C extends string>(table: CreateTableBuilder<TB, C>): CreateTableBuilder<TB, C | "id">;
 
   /**
    * True if the error is caused by creating an index that already exists

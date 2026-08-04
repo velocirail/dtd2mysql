@@ -9,7 +9,7 @@ export const sqliteSchemaDialect: SchemaDialect = {
    * SQLite only has storage classes, the declared type just sets the column affinity. Dates and times are stored
    * as ISO strings, which is the representation the rest of the code already expects.
    */
-  columnType(field: FieldType): Expression<any> {
+  columnType(field: FieldType): Expression<unknown> {
     switch (field.type) {
       case "text": return sql.raw("text");
       case "date": return sql.raw("text");
@@ -21,7 +21,7 @@ export const sqliteSchemaDialect: SchemaDialect = {
     }
   },
 
-  addIdColumn(table: CreateTableBuilder<any, any>): CreateTableBuilder<any, any> {
+  addIdColumn<TB extends string, C extends string>(table: CreateTableBuilder<TB, C>): CreateTableBuilder<TB, C | "id"> {
     return table.addColumn("id", "integer", col => col.primaryKey().autoIncrement());
   },
 
