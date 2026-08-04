@@ -15,7 +15,7 @@ export const postgresSchemaDialect: SchemaDialect = {
 
   name: "postgres",
 
-  columnType(field: FieldType): Expression<any> {
+  columnType(field: FieldType): Expression<unknown> {
     switch (field.type) {
       case "text": return sql.raw(field.variableLength ? `varchar(${field.length})` : `char(${field.length})`);
       // the feed parses booleans to 1 and 0, storing them as a number keeps that representation
@@ -29,7 +29,7 @@ export const postgresSchemaDialect: SchemaDialect = {
     }
   },
 
-  addIdColumn(table: CreateTableBuilder<any, any>): CreateTableBuilder<any, any> {
+  addIdColumn<TB extends string, C extends string>(table: CreateTableBuilder<TB, C>): CreateTableBuilder<TB, C | "id"> {
     return table.addColumn("id", "serial", col => col.primaryKey());
   },
 

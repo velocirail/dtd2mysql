@@ -1,4 +1,5 @@
-import {Kysely, sql} from "kysely";
+import {CreateTableBuilder, Kysely, sql} from "kysely";
+import {Database} from "./Database";
 import {getFieldType, SchemaDialect} from "./SchemaDialect";
 import {Record} from "../feed/record/Record";
 
@@ -10,7 +11,7 @@ export const LOG_TABLE = "log";
 export class SchemaBuilder {
 
   constructor(
-    private readonly db: Kysely<any>,
+    private readonly db: Kysely<Database>,
     private readonly dialect: SchemaDialect,
     private readonly record: Record
   ) {}
@@ -19,7 +20,9 @@ export class SchemaBuilder {
    * Create the table and its indexes
    */
   public async createSchema(): Promise<void> {
-    let table = this.dialect.addIdColumn(this.db.schema.createTable(this.record.name).ifNotExists());
+    // the column names come from the feed definition at runtime, so the builder cannot track them
+    let table: CreateTableBuilder<string, string> =
+      this.dialect.addIdColumn(this.db.schema.createTable(this.record.name).ifNotExists());
 
     for (const [name, field] of Object.entries(this.record.fields)) {
       const type = this.dialect.columnType(getFieldType(field));
@@ -70,7 +73,7 @@ export class SchemaBuilder {
 /**
  * Create the table that records which feed files have been processed
  */
-export async function createLogSchema(db: Kysely<any>, dialect: SchemaDialect): Promise<void> {
+export async function createLogSchema(db: Kysely<Database>, dialect: SchemaDialect): Promise<void> {
   await dialect
     .addIdColumn(db.schema.createTable(LOG_TABLE).ifNotExists())
     .addColumn("filename", sql.raw("varchar(255)"))
