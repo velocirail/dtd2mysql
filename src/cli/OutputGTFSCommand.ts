@@ -15,10 +15,13 @@ import {addLateNightServices} from "../gtfs/command/AddLateNightServices";
 import {finished} from "node:stream/promises";
 
 /**
- * How far ahead of the import date schedules are exported, as a mysql interval expression. Anything beyond this point
- * is omitted, so overlays and cancellations that start later are not applied to the schedules they modify.
+ * How far ahead of the import date schedule records are collected, as a mysql interval expression.
+ *
+ * This bounds correctness rather than coverage: calendars are exported over their full runs_to, but overlays and
+ * cancellations starting beyond this point are never collected, so they are not applied to the schedules they modify.
+ * It therefore needs to reach at least as far as the booking horizon, which is six months.
  */
-export const DEFAULT_GTFS_RANGE = "3 MONTH";
+export const DEFAULT_GTFS_RANGE = "6 MONTH";
 
 export class OutputGTFSCommand implements CLICommand {
   private baseDir!: string;

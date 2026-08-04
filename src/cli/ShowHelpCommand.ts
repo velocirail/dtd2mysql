@@ -40,7 +40,7 @@ The --get-* and --download-* commands require SFTP environment properties:
 
 The --gtfs and --gtfs-zip commands take the following environment properties:
 
-  GTFS_RANGE                 A mysql interval expression for the scedules to include. This is NOT SANITIZED so it cannot be untrusted user input (defaults to '3 MONTH')
+  GTFS_RANGE                 A mysql interval expression for the scedules to include. This is NOT SANITIZED so it cannot be untrusted user input (defaults to '6 MONTH')
   
 `);
 

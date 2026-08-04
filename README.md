@@ -112,20 +112,25 @@ The timetable data does not map to a relational database in a very logical fashi
 
 ### GTFS feed cutoff date
 
-Only schedule records that **start** up to 3 months into the future (using date of import as a reference point) are exported to GTFS for performance reasons.
-This will cause any data after that point to be either incomplete or incorrect, as override/cancellation records after that will be ignored as well.
+Only schedule records that **start** up to 6 months into the future (using date of import as a reference point) are
+collected for export, for performance reasons. This default matches the 6 month booking horizon.
+
+Note that this bounds *correctness*, not *coverage*. Calendars are exported over their full `runs_to`, so a permanent
+schedule running to the end of the timetable appears in the feed well beyond the cutoff — but override and cancellation
+records starting after the cutoff are never collected, so they are not applied. Data after the cutoff is therefore
+incomplete or incorrect rather than absent, and the cutoff needs to reach at least as far as the booking horizon.
 
 The cutoff can be moved with the `GTFS_RANGE` environment variable, which takes a MySQL interval expression and applies
 to schedules, z-trains and associations alike:
 
 ```
-GTFS_RANGE="6 MONTH" dtd2mysql --gtfs-zip filename-of-gtfs.zip
+GTFS_RANGE="12 MONTH" dtd2mysql --gtfs-zip filename-of-gtfs.zip
 ```
 
-Note that this value is interpolated directly into SQL and is **not sanitized**, so it must not come from untrusted
-input. Widening the range increases both the export time and the memory used to process overlays, and the `schedule`
-table is only indexed on `runs_from`, so a much longer range may warrant an index on `runs_to` as well. Widening the
-range does not fix the incorrectness described above — it only moves the point at which it begins.
+This value is interpolated directly into SQL and is **not sanitized**, so it must not come from untrusted input.
+Widening the range increases export time and the memory used to process overlays; the overlay pass grows faster than
+the range does. The `schedule` table is also only indexed on `runs_from` and `association` is not indexed at all, so a
+substantially longer range may warrant adding indexes.
 
 ## Contributing
 
