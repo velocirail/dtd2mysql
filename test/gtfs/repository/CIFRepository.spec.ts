@@ -41,11 +41,43 @@ describe("CIFRepository", () => {
     await repository.getAssociations("6 MONTH");
 
     const cutoffs = [...streamQueries, ...associationQueries()]
-      .map(query => query.match(/CURDATE\(\) \+ INTERVAL (.+)/))
+      .map(query => query.match(/CURDATE\(\) \+ INTERVAL ([^)]+)/))
       .map(match => match && match[1].trim());
 
     expect(cutoffs.length).to.equal(3);
     expect(new Set(cutoffs).size).to.equal(1);
+  });
+
+  /**
+   * Calendars are exported over their whole runs_to, so a schedule reaching past the cutoff is emitted for those later
+   * dates. The short term records correcting it have to be collected however far ahead they start, or those dates are
+   * emitted uncorrected.
+   */
+  it("exempts short term records from the cutoff so late corrections are still applied", async () => {
+    const {repository, associationQueries, streamQueries} = repositoryWithSpies();
+
+    await repository.getSchedules("6 MONTH");
+    await repository.getAssociations("6 MONTH");
+
+    for (const query of [...streamQueries, ...associationQueries()]) {
+      expect(query).to.match(/CURDATE\(\) \+ INTERVAL 6 MONTH OR stp_indicator != 'P'/);
+    }
+  });
+
+  /**
+   * The exemption has to be bracketed with the cutoff it relaxes. Unbracketed, AND binds tighter than OR and the
+   * clause becomes (everything AND cutoff) OR short term, which drops the runs_to bound for every short term record
+   * and pulls in the entire history of the feed.
+   */
+  it("brackets the short term exemption against the cutoff", async () => {
+    const {repository, associationQueries, streamQueries} = repositoryWithSpies();
+
+    await repository.getSchedules("6 MONTH");
+    await repository.getAssociations("6 MONTH");
+
+    for (const query of [...streamQueries, ...associationQueries()]) {
+      expect(query).to.match(/\([a-z_]+ < CURDATE\(\) \+ INTERVAL 6 MONTH OR stp_indicator != 'P'\)/);
+    }
   });
 
 });

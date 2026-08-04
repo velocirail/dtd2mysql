@@ -112,16 +112,21 @@ The timetable data does not map to a relational database in a very logical fashi
 
 ### GTFS feed cutoff date
 
-Only schedule records that **start** up to 6 months into the future (using date of import as a reference point) are
-collected for export, for performance reasons. This default matches the 6 month booking horizon.
+Only **permanent** schedule records that **start** up to 6 months into the future (using date of import as a reference
+point) are collected for export, for performance reasons. This default matches the 6 month booking horizon.
 
-Note that this bounds *correctness*, not *coverage*. Calendars are exported over their full `runs_to`, so a permanent
-schedule running to the end of the timetable appears in the feed well beyond the cutoff — but override and cancellation
-records starting after the cutoff are never collected, so they are not applied. Data after the cutoff is therefore
-incomplete or incorrect rather than absent, and the cutoff needs to reach at least as far as the booking horizon.
+Note that the cutoff bounds *coverage*, not *correctness*. Calendars are exported over their full `runs_to`, so a
+permanent schedule running to the end of the timetable appears in the feed well beyond the cutoff. Short term plan
+records — overlays, new schedules and cancellations, i.e. any `stp_indicator` other than `P` — are therefore **not**
+subject to the cutoff. They are collected however far ahead they start, so a schedule that reaches past the cutoff is
+still corrected on those later dates rather than advertising a service that has since been altered or cancelled.
+
+Short term records remain bounded by having to run on or after the date of import, and short term planning does not
+reach far ahead in practice, so exempting them collects few extra rows. One consequence worth knowing: a short term
+schedule that begins beyond the cutoff is now exported, so the feed can contain trips starting after the cutoff.
 
 The cutoff can be moved with the `GTFS_RANGE` environment variable, which takes a MySQL interval expression and applies
-to schedules, z-trains and associations alike:
+to the permanent schedule, z-train and association records alike:
 
 ```
 GTFS_RANGE="12 MONTH" dtd2mysql --gtfs-zip filename-of-gtfs.zip

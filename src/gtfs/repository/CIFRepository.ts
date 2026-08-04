@@ -85,6 +85,13 @@ export class CIFRepository {
    * Both queries must use the same range, otherwise replacement services disappear part way through the feed while
    * the passenger services they replace continue.
    *
+   * The range bounds permanent records only. Calendars are exported over their whole runs_to, so a permanent schedule
+   * reaching past the range is still emitted for those later dates - and if the short term records correcting it were
+   * bounded too, it would be emitted there uncorrected, advertising services that have since been altered or
+   * cancelled. Short term records (any stp_indicator other than P) are therefore collected however far ahead they
+   * start, so every correction to an exported schedule is applied. They stay bounded by runs_to >= CURDATE(), and
+   * short term planning does not reach far ahead in practice, so this collects few extra rows.
+   *
    * The argument range is a mysql expression like '6 MONTH'.
    *   It is NOT SANITIZED so it cannot be untrusted user input.
    */
@@ -110,7 +117,7 @@ export class CIFRepository {
         (
           stop_time.id IS NULL OR crs_code IS NOT NULL
         )
-        AND runs_from < CURDATE() + INTERVAL ${range}
+        AND (runs_from < CURDATE() + INTERVAL ${range} OR stp_indicator != 'P')
         AND runs_to >= CURDATE()
         AND scheduled_pass_time is null
         ORDER BY stp_indicator DESC, id, stop_id
@@ -125,7 +132,7 @@ export class CIFRepository {
         FROM z_schedule
         LEFT JOIN z_schedule_extra ON z_schedule.id = z_schedule_extra.schedule
         JOIN z_stop_time ON z_schedule.id = z_stop_time.z_schedule
-        WHERE runs_from < CURDATE() + INTERVAL ${range}
+        WHERE (runs_from < CURDATE() + INTERVAL ${range} OR stp_indicator != 'P')
         AND runs_to >= CURDATE()
         ORDER BY stop_id
       `))
@@ -138,7 +145,8 @@ export class CIFRepository {
    * Get associations.
    *
    * The range must match the one given to getSchedules or trips that join or split beyond the association cutoff will
-   * be emitted as unassociated portions.
+   * be emitted as unassociated portions. As there, it bounds permanent records only, so short term records correcting
+   * an association that reaches past the range are still applied.
    *
    * The argument range is a mysql expression like '6 MONTH'.
    *   It is NOT SANITIZED so it cannot be untrusted user input.
@@ -151,7 +159,7 @@ export class CIFRepository {
         start_date, end_date, stp_indicator
       FROM association a
       JOIN tiploc ON assoc_location = tiploc_code
-      WHERE start_date < CURDATE() + INTERVAL ${range}
+      WHERE (start_date < CURDATE() + INTERVAL ${range} OR stp_indicator != 'P')
       AND end_date >= CURDATE()
       ORDER BY stp_indicator DESC, id
     `);
