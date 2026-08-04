@@ -19,7 +19,7 @@ import TVL from "./file/TVL";
 import TRR from "./file/TRR";
 import TPK from "./file/TPK";
 
-const specification: FeedConfig = {
+const specification = {
   DIS: DIS,
   FFL: FFL,
   FNS: FNS,
@@ -39,6 +39,6 @@ const specification: FeedConfig = {
   TSP: TSP,
   TTY: TTY,
   TVL: TVL
-};
+} satisfies FeedConfig;
 
 export default specification;

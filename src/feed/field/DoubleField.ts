@@ -1,9 +1,9 @@
 
 import {Field, ParseError} from "./Field";
 
-export class DoubleField extends Field {
+export class DoubleField<N extends boolean = false> extends Field<N> {
 
-  constructor(position: number, length: number, public readonly decimalDigits: number, isNullable: boolean = false) {
+  constructor(position: number, length: number, public readonly decimalDigits: number, isNullable: N = false as N) {
     super(position, length, isNullable, [" ", "*", "9"]);
   }
 

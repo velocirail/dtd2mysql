@@ -13,9 +13,9 @@ import {FieldValue} from "../../../src/feed/field/Field";
 /**
  * Short format DTD date (e.g. 31/05/2017)
  */
-class ALFDate extends DateField {
+export class ALFDate<N extends boolean = false> extends DateField<N> {
 
-  constructor(start: number, nullable: boolean = false) {
+  constructor(start: number, nullable: N = false as N) {
     super(start, nullable);
   }
 
@@ -31,7 +31,26 @@ class ALFDate extends DateField {
 /**
  * The ALF file has a bizarre CSV like format with optional fields so some specific processing is required.
  */
-class ALFRecord implements Record {
+const alfFields = {
+    "mode": new VariableLengthText(1, 10),
+    "origin": new TextField(2, 3),
+    "destination": new TextField(3, 3),
+    "duration": new IntField(4, 3, false, []),
+    "start_time": new TimeField(5, 4, false),
+    "end_time": new TimeField(6, 4, false),
+    "priority": new IntField(7, 1),
+    "start_date": new ALFDate(8, true),
+    "end_date": new ALFDate(9, true),
+    "monday": new BooleanField(10),
+    "tuesday": new BooleanField(11),
+    "wednesday": new BooleanField(12),
+    "thursday": new BooleanField(13),
+    "friday": new BooleanField(14),
+    "saturday": new BooleanField(15),
+    "sunday": new BooleanField(16)
+};
+
+export class ALFRecord implements Record<"additional_fixed_link", typeof alfFields> {
 
   private readonly fieldMap: { [name: string]: [string] | [string, number] } = {
     "mode": ["M"],
@@ -52,27 +71,10 @@ class ALFRecord implements Record {
     "sunday": ["R", 6]
   };
 
-  public readonly name: string = "additional_fixed_link";
-  public readonly indexes: string[] = [];
-  public readonly key: string[] = [];
-  public readonly fields: FieldMap = {
-    "mode": new VariableLengthText(1, 10),
-    "origin": new TextField(2, 3),
-    "destination": new TextField(3, 3),
-    "duration": new IntField(4, 3, false, []),
-    "start_time": new TimeField(5, 4, false),
-    "end_time": new TimeField(6, 4, false),
-    "priority": new IntField(7, 1),
-    "start_date": new ALFDate(8, true),
-    "end_date": new ALFDate(9, true),
-    "monday": new BooleanField(10),
-    "tuesday": new BooleanField(11),
-    "wednesday": new BooleanField(12),
-    "thursday": new BooleanField(13),
-    "friday": new BooleanField(14),
-    "saturday": new BooleanField(15),
-    "sunday": new BooleanField(16)
-  };
+  public readonly name = "additional_fixed_link" as const;
+  public readonly indexes: (keyof typeof alfFields & string)[] = [];
+  public readonly key: (keyof typeof alfFields & string)[] = [];
+  public readonly fields = alfFields;
 
   public readonly orderedInserts: boolean = false;
 

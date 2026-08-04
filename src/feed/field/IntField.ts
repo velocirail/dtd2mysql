@@ -1,11 +1,11 @@
 
 import {Field, ParseError} from "./Field";
 
-export class IntField extends Field {
+export class IntField<N extends boolean = false> extends Field<N> {
 
   constructor(position: number,
               length: number,
-              nullable: boolean = false,
+              nullable: N = false as N,
               nullChars: string[] = [" ", "*", "9"]) {
     super(position, length, nullable, nullChars);
   }
@@ -25,7 +25,7 @@ export class IntField extends Field {
 
 }
 
-export class ZeroFillIntField extends Field {
+export class ZeroFillIntField<N extends boolean = false> extends Field<N> {
 
   /**
    * Zero filled ints are stored as padded chars

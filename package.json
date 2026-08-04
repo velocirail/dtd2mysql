@@ -18,7 +18,7 @@
     "prepublishOnly": "tsc -p ./ --outDir dist/",
     "gtfs": "tsx ./src/index.ts --gtfs",
     "gtfs-zip": "tsx ./src/index.ts --gtfs-zip",
-    "generate-types": "tsx ./scripts/generate-types.ts"
+    "typecheck": "tsc -p ./tsconfig.test.json"
   },
   "repository": {
     "type": "git",
