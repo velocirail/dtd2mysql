@@ -1,21 +1,21 @@
 
-import {FieldMap, ParsedRecord, Record, RecordAction} from "./Record";
+import {AnyFieldMap, FieldMap, ParsedRecord, Record, RecordAction} from "./Record";
 import {FieldValue} from "../field/Field";
 
 /**
  * Record that has multiple row types, used for LI, LO stop records
  */
-export class MultiFormatRecord implements Record {
+export class MultiFormatRecord<Name extends string = string, F extends AnyFieldMap = FieldMap> implements Record<Name, F> {
   public lastId = 0;
 
   constructor(
-    public readonly name: string,
-    public readonly key: string[],
-    public readonly fields: FieldMap,
+    public readonly name: Name,
+    public readonly key: (keyof F & string)[],
+    public readonly fields: F,
     private readonly records: MultiRecordFieldMap,
     private readonly recordIdentifierStart: number,
     private readonly recordIdentifierLength: number,
-    public readonly indexes: string[] = [],
+    public readonly indexes: (keyof F & string)[] = [],
     public readonly orderedInserts: boolean = false
   ) {}
 

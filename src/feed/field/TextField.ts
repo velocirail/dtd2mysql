@@ -4,7 +4,7 @@ import {Field} from "./Field";
 /**
  * Basic text field, with a fixed length
  */
-export class TextField extends Field {
+export class TextField<N extends boolean = false> extends Field<N> {
 
   /**
    * Return the string as is
@@ -18,4 +18,4 @@ export class TextField extends Field {
 /**
  * Text field with a variable length
  */
-export class VariableLengthText extends TextField {}
+export class VariableLengthText<N extends boolean = false> extends TextField<N> {}

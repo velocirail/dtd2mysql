@@ -1,15 +1,15 @@
 
 import {Record} from "../record/Record";
 
-export interface FeedFile {
+export interface FeedFile<R extends Record = Record> {
 
   /**
    * Return all the possible return types in the file
    */
-  recordTypes: Record[];
+  recordTypes: R[];
 
   /**
    * Return the relevant Record for the line
    */
-  getRecord(line: string): Record | null;
+  getRecord(line: string): R | null;
 }

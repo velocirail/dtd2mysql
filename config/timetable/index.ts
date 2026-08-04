@@ -8,7 +8,7 @@ import ALF from "./file/ALF";
 import CFA from "./file/CFA";
 import TSI from "./file/TSI";
 
-const specification: FeedConfig = {
+const specification = {
   "MSN": MSN,
   "FLF": FLF,
   "MCA": MCA,
@@ -16,6 +16,6 @@ const specification: FeedConfig = {
   "ALF": ALF,
   "CFA": CFA,
   "TSI": TSI,
-};
+} satisfies FeedConfig;
 
 export default specification;

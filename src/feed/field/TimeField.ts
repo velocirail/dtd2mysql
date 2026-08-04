@@ -1,9 +1,9 @@
 
 import {Field} from "./Field";
 
-export class TimeField extends Field {
+export class TimeField<N extends boolean = true> extends Field<N> {
 
-  constructor(start: number, length: number, nullable: boolean = true, nullChars: string[] = [" ", "0"]) {
+  constructor(start: number, length: number, nullable: N = true as N, nullChars: string[] = [" ", "0"]) {
     super(start, length, nullable, nullChars);
   }
 
