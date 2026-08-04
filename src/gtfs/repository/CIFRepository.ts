@@ -85,7 +85,7 @@ export class CIFRepository {
    * Both queries must use the same range, otherwise replacement services disappear part way through the feed while
    * the passenger services they replace continue.
    *
-   * The argument range is a mysql expression like '3 MONTH'.
+   * The argument range is a mysql expression like '6 MONTH'.
    *   It is NOT SANITIZED so it cannot be untrusted user input.
    */
   public async getSchedules(range: string): Promise<ScheduleResults> {
@@ -140,7 +140,7 @@ export class CIFRepository {
    * The range must match the one given to getSchedules or trips that join or split beyond the association cutoff will
    * be emitted as unassociated portions.
    *
-   * The argument range is a mysql expression like '3 MONTH'.
+   * The argument range is a mysql expression like '6 MONTH'.
    *   It is NOT SANITIZED so it cannot be untrusted user input.
    */
   public async getAssociations(range: string): Promise<Association[]> {

@@ -50,7 +50,7 @@ dtd2mysql --timetable /path/to/RJTTFxxx.ZIP
 
 ### Convert to GTFS
 
-Convert the DTD/TTIS version of the timetable (up to 3 months into the future) to GTFS. 
+Convert the DTD/TTIS version of the timetable (up to 6 months into the future, see [GTFS feed cutoff date](#gtfs-feed-cutoff-date)) to GTFS. 
 
 ```
 dtd2mysql --timetable /path/to/RJTTFxxx.ZIP
