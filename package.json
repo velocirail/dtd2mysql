@@ -1,6 +1,6 @@
 {
   "name": "dtd2mysql",
-  "version": "6.6.6",
+  "version": "6.6.7",
   "description": "Command line tool to put the GB rail DTD feed into a MySQL compatible database",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,8 +17,7 @@
     "start": "tsx ./src/index.ts",
     "prepublishOnly": "tsc -p ./ --outDir dist/",
     "gtfs": "tsx ./src/index.ts --gtfs",
-    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip",
-    "typecheck": "tsc -p ./tsconfig.test.json"
+    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip"
   },
   "repository": {
     "type": "git",
@@ -46,14 +45,12 @@
     "adm-zip": "0.6.0",
     "byline": "5.0.0",
     "csv-write-stream": "2.0.0",
-    "kysely": "0.29.4",
     "memoized-class-decorator": "1.6.1",
     "mysql2": "3.23.0",
     "proj4": "2.20.9",
     "ssh2": "1.17.0"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.4",
     "@types/adm-zip": "0.5.8",
     "@types/byline": "4.2.36",
     "@types/csv-write-stream": "2.0.3",
