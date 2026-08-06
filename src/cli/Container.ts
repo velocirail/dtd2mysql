@@ -1,5 +1,5 @@
 import memoize from "memoized-class-decorator";
-import {Kysely, MysqlDialect} from "kysely";
+import {Kysely, MysqlDialect, PostgresDialect} from "kysely";
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -175,8 +175,8 @@ export class Container {
   }
 
   /**
-   * The row writer and the GTFS queries still speak MySQL directly, so anything that needs them fails here
-   * rather than further down with a confusing connection error
+   * The GTFS queries and the fares clean up still speak MySQL directly, so anything that needs them fails
+   * here rather than further down with a confusing connection error. The import no longer uses this.
    */
   @memoize
   public getDatabaseConnection(): DatabaseConnection {
@@ -186,7 +186,7 @@ export class Container {
       throw new Error(`Only the schema layer supports ${dialect}, everything else still requires mysql.`);
     }
 
-    return require('mysql2/promise').createPool({
+    return driver("mysql2/promise", "mysql2").createPool({
       ...this.driverConfiguration,
       //debug: ['ComQueryPacket', 'RowDataPacket']
     });
@@ -194,7 +194,7 @@ export class Container {
 
   @memoize
   public getDatabaseStream() {
-    return require('mysql2').createPool(this.driverConfiguration);
+    return driver("mysql2", "mysql2").createPool(this.driverConfiguration);
   }
 
   @memoize
@@ -217,8 +217,26 @@ export class Container {
       case "sqlite":
         return new Kysely({ dialect: new NodeSqliteDialect(configuration.database) });
       case "postgres":
-        throw new Error("The postgres driver is not wired up yet, only the schema layer supports it.");
+        return new Kysely({ dialect: new PostgresDialect({ pool: this.getPostgresPool() }) });
     }
+  }
+
+  /**
+   * Postgres hands back date and timestamp columns as Date objects built in the local timezone, which is
+   * exactly what dateStrings avoids on MySQL. The parsers leave them as the strings everything else here
+   * expects, so reading a date does not depend on the machine doing the reading.
+   */
+  @memoize
+  private getPostgresPool() {
+    const pg = driver("pg", "pg");
+    const { host, user, password, database, port, connectionLimit } = this.databaseConfiguration;
+
+    pg.types.setTypeParser(pg.types.builtins.DATE, (value: string) => value);
+    pg.types.setTypeParser(pg.types.builtins.TIMESTAMP, (value: string) => value);
+
+    return new pg.Pool({
+      host, user, database, port, max: connectionLimit, password: password ?? undefined
+    });
   }
 
   /**
@@ -250,6 +268,21 @@ export class Container {
     };
   }
 
+}
+
+/**
+ * Load a database driver.
+ *
+ * The drivers are optional peer dependencies, so that installing this does not drag in one for every
+ * database it can talk to. SQLite needs nothing, it is built into node.
+ */
+function driver(module: string, install: string) {
+  try {
+    return require(module);
+  }
+  catch {
+    throw new Error(`The ${install} package is needed for this database but is not installed. Run npm install ${install}.`);
+  }
 }
 
 /**

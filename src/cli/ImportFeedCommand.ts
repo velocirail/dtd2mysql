@@ -59,7 +59,7 @@ export class ImportFeedCommand implements CLICommand {
 
     // if the file is a not an incremental, reset the database schema
     if (zipName.charAt(4) !== "C") {
-      await Promise.all(this.fileArray.map(file => this.setupSchema(file)));
+      await this.setupSchema();
       await this.createLastProcessedSchema();
     }
 
@@ -84,9 +84,9 @@ export class ImportFeedCommand implements CLICommand {
   /**
    * Drop and recreate the tables
    */
-  private async setupSchema(file: FeedFile): Promise<void> {
-    await Promise.all(this.schemas(file).map(schema => schema.dropSchema()));
-    await Promise.all(this.schemas(file).map(schema => schema.createSchema()));
+  private async setupSchema(): Promise<void> {
+    await Promise.all(this.schemas().map(schema => schema.dropSchema()));
+    await Promise.all(this.schemas().map(schema => schema.createSchema()));
   }
 
   /**
@@ -154,11 +154,29 @@ export class ImportFeedCommand implements CLICommand {
     return this.files[getExt(filename)];
   }
 
+  /**
+   * One builder per table the feed writes to.
+   *
+   * Some files share their record types, the timetable's MCA and CFA in particular, so the tables are
+   * deduplicated. Creating the same table twice at once is a race in Postgres, which does not make
+   * CREATE TABLE IF NOT EXISTS atomic against itself.
+   */
   @memoize
-  private schemas(file: FeedFile): SchemaBuilder[] {
-    return file.recordTypes.map(
-      record => new SchemaBuilder(this.db, this.schemaDialect, record.name, this.table(record.name))
-    );
+  private schemas(): SchemaBuilder[] {
+    const tables = new Map<string, SchemaBuilder>();
+
+    for (const file of this.fileArray) {
+      for (const record of file.recordTypes) {
+        if (!tables.has(record.name)) {
+          tables.set(
+            record.name,
+            new SchemaBuilder(this.db, this.schemaDialect, record.name, this.table(record.name))
+          );
+        }
+      }
+    }
+
+    return [...tables.values()];
   }
 
   /**

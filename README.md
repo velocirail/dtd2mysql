@@ -6,9 +6,10 @@ An import tool for the British rail fares, routeing and timetable feeds into a d
 
 Although both the timetable and fares feed are open data you will need to obtain the fares feed via the [ATOC website](http://data.atoc.org/fares-data). The formal specification for the data inside the feed also available on the [ATOC website](http://data.atoc.org/sites/all/themes/atoc/files/SP0035.pdf).
 
-The import runs against MySQL, SQLite and Postgres, chosen with `DATABASE_DIALECT` and defaulting to
-MySQL. Note that the GTFS output still queries MySQL directly, and the Postgres driver is not wired up
-yet, so Postgres currently reaches as far as the schema. PRs are very welcome.
+The import runs against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT` and defaulting to
+MySQL. The database driver is yours to choose, so install the one you need alongside this: `mysql2` for
+MySQL, `pg` for Postgres, and nothing at all for SQLite, which is built into node. Note that the GTFS
+output and the fares clean up still query MySQL directly. PRs are very welcome.
 
 ## Requirements
 
@@ -135,9 +136,10 @@ docker compose up -d
 npm run test:integration
 ```
 
-It runs against MySQL by default. Set `DATABASE_DIALECT=sqlite` (and `DATABASE_NAME` to a file path) to
-run the same tests, against the same recorded rows, on SQLite. Every database is expected to produce the
-same rows, so a dialect that needs its own expectations is a bug rather than something to record.
+It runs against MySQL by default. Set `DATABASE_DIALECT` to `postgres`, or to `sqlite` with
+`DATABASE_NAME` pointing at a file, to run the same tests against the same recorded rows on those
+instead. Every database is expected to produce the same rows, so one that needs its own expectations is
+a bug rather than something to record.
 
 The timetable fixture is hand written and realistic. The fares, routeing and nfm64 fixtures are derived
 from the feed definitions by `npm run fixture:generate`, which is only needed when a record definition

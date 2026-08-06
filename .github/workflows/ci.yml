@@ -48,7 +48,38 @@ jobs:
       - run: npm ci
       - run: npm run test:integration
 
-  # sqlite is built into node, so this compares a second database against the same recorded rows for free
+  integration-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dtd2mysql
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
+        env:
+          DATABASE_DIALECT: postgres
+          DATABASE_HOSTNAME: localhost
+          DATABASE_USERNAME: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_PORT: 5432
+          DATABASE_NAME: dtd2mysql
+
+  # sqlite is built into node, so this compares a third database against the same recorded rows for free
   integration-sqlite:
     runs-on: ubuntu-latest
     steps:
