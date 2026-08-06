@@ -91,11 +91,7 @@ export class Container {
   @memoize
   private getOutputGTFSCommandWithOutput(output: GTFSOutput): OutputGTFSCommand {
     return new OutputGTFSCommand(
-      new CIFRepository(
-        this.getDatabaseConnection(),
-        this.getDatabaseStream(),
-        stationCoordinates
-      ),
+      new CIFRepository(this.getKysely(), stationCoordinates),
       output
     );
   }
@@ -217,7 +213,13 @@ export class Container {
       case "sqlite":
         return new Kysely({ dialect: new NodeSqliteDialect(configuration.database) });
       case "postgres":
-        return new Kysely({ dialect: new PostgresDialect({ pool: this.getPostgresPool() }) });
+        return new Kysely({
+          dialect: new PostgresDialect({
+            pool: this.getPostgresPool(),
+            // only the GTFS output streams, so this stays optional and importing works without it
+            cursor: optionalDriver("pg-cursor")
+          })
+        });
     }
   }
 
@@ -282,6 +284,18 @@ function driver(module: string, install: string) {
   }
   catch {
     throw new Error(`The ${install} package is needed for this database but is not installed. Run npm install ${install}.`);
+  }
+}
+
+/**
+ * Load a driver that is only needed for some of the work, returning nothing if it is not installed
+ */
+function optionalDriver(module: string) {
+  try {
+    return require(module);
+  }
+  catch {
+    return undefined;
   }
 }
 

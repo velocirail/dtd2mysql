@@ -6,10 +6,17 @@ An import tool for the British rail fares, routeing and timetable feeds into a d
 
 Although both the timetable and fares feed are open data you will need to obtain the fares feed via the [ATOC website](http://data.atoc.org/fares-data). The formal specification for the data inside the feed also available on the [ATOC website](http://data.atoc.org/sites/all/themes/atoc/files/SP0035.pdf).
 
-The import runs against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT` and defaulting to
-MySQL. The database driver is yours to choose, so install the one you need alongside this: `mysql2` for
-MySQL, `pg` for Postgres, and nothing at all for SQLite, which is built into node. Note that the GTFS
-output and the fares clean up still query MySQL directly. PRs are very welcome.
+The import and the GTFS output run against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT`
+and defaulting to MySQL. The database driver is yours to choose, so install the one you need alongside
+this:
+
+| database | install |
+| --- | --- |
+| MySQL | `mysql2` |
+| Postgres | `pg`, and `pg-cursor` as well if you want the GTFS output, which streams |
+| SQLite | nothing, it is built into node |
+
+Note that `--fares-clean` still queries MySQL directly. PRs are very welcome.
 
 ## Requirements
 

@@ -55,13 +55,17 @@
   },
   "peerDependencies": {
     "mysql2": ">=3",
-    "pg": ">=8"
+    "pg": ">=8",
+    "pg-cursor": ">=2"
   },
   "peerDependenciesMeta": {
     "mysql2": {
       "optional": true
     },
     "pg": {
+      "optional": true
+    },
+    "pg-cursor": {
       "optional": true
     }
   },
@@ -75,6 +79,7 @@
     "@types/ssh2": "1.15.5",
     "mysql2": "3.23.0",
     "pg": "^8.22.0",
+    "pg-cursor": "^2.21.0",
     "tsx": "4.23.1",
     "typescript": "7.0.2",
     "vitest": "^4.1.10"

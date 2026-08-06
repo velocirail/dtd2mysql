@@ -29,12 +29,7 @@ describe("the GTFS queries", () => {
 
     await command.doImport(zipFixture("timetable", "RJTTF999.ZIP"));
 
-    repository = new CIFRepository(
-      container.getDatabaseConnection(),
-      container.getDatabaseStream(),
-      stationCoordinates,
-      today
-    );
+    repository = new CIFRepository(container.getKysely(), stationCoordinates, today);
   });
 
   // the repository and the import share the pools Container hands out, so they are closed once

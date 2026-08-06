@@ -135,13 +135,13 @@
       "end_time": "23:59:00",
       "start_date": "2025-06-01",
       "end_date": "2025-12-13",
-      "monday": "1",
-      "tuesday": "1",
-      "wednesday": "1",
-      "thursday": "1",
-      "friday": "1",
-      "saturday": "0",
-      "sunday": "0"
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0
     },
     {
       "from_stop_id": "CLJ",
@@ -152,13 +152,13 @@
       "end_time": "23:59:00",
       "start_date": "2025-06-01",
       "end_date": "2025-12-13",
-      "monday": "1",
-      "tuesday": "1",
-      "wednesday": "1",
-      "thursday": "1",
-      "friday": "1",
-      "saturday": "0",
-      "sunday": "0"
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0
     },
     {
       "from_stop_id": "CLJ",
@@ -169,13 +169,13 @@
       "end_time": "23:00:00",
       "start_date": "2025-06-01",
       "end_date": "2025-12-13",
-      "monday": "0",
-      "tuesday": "0",
-      "wednesday": "0",
-      "thursday": "0",
-      "friday": "0",
-      "saturday": "1",
-      "sunday": "1"
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 1,
+      "sunday": 1
     },
     {
       "from_stop_id": "VIC",
@@ -186,13 +186,13 @@
       "end_time": "23:00:00",
       "start_date": "2025-06-01",
       "end_date": "2025-12-13",
-      "monday": "0",
-      "tuesday": "0",
-      "wednesday": "0",
-      "thursday": "0",
-      "friday": "0",
-      "saturday": "1",
-      "sunday": "1"
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 1,
+      "sunday": 1
     }
   ],
   "schedules": [
@@ -236,6 +236,7 @@
     {
       "id": 4,
       "tuid": "Z00001",
+      "rsid": null,
       "stp": "P",
       "mode": 2,
       "operator": "SN",
