@@ -63,8 +63,8 @@ describe("SchemaBuilder", () => {
       'create table if not exists "test" (' +
       '"id" serial primary key, ' +
       '"field" smallint not null, ' +
-      '"field2" char(3) not null, ' +
-      '"field3" char(5) not null, ' +
+      '"field2" varchar(3) not null, ' +
+      '"field3" varchar(5) not null, ' +
       '"field4" varchar(5) not null, ' +
       '"field5" date not null, ' +
       '"field6" time, ' +

@@ -45,6 +45,22 @@ describe("the postgres schema", () => {
     expect(row.field8).to.equal(1.5);
   });
 
+  // character(n) would pad this back out to the width of the column, where MySQL strips the padding.
+  // Storing fixed length text as varchar is what makes the two return the same string
+  it("returns text without padding it out to the width of the column", async () => {
+    await new SchemaBuilder(db, postgresSchemaDialect, "padding", testTable()).createSchema();
+
+    await db.insertInto("padding").values({
+      field: 1, field2: "002", field3: "ab", field4: "cd", field5: "2023-11-20",
+      field6: "09:15:00", field7: 1, field8: 1.5
+    }).execute();
+
+    const [row] = await db.selectFrom("padding").selectAll().execute();
+
+    expect(row.field3).to.equal("ab");
+    expect(row.field4).to.equal("cd");
+  });
+
   it("creates the schema twice without failing on the indexes", async () => {
     const schema = new SchemaBuilder(db, postgresSchemaDialect, "created_twice", testTable());
 

@@ -17,7 +17,9 @@ export const postgresSchemaDialect: SchemaDialect = {
 
   columnType(field: FieldType): Expression<unknown> {
     switch (field.type) {
-      case "text": return sql.raw(field.variableLength ? `varchar(${field.length})` : `char(${field.length})`);
+      // character(n) pads a value back out to the width of the column when it is read, where MySQL
+      // strips the padding instead. varchar returns exactly what was stored, which is what agrees.
+      case "text": return sql.raw(`varchar(${field.length})`);
       // the feed parses booleans to 1 and 0, storing them as a number keeps that representation
       case "boolean": return sql.raw("smallint");
       case "date": return sql.raw("date");
