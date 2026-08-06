@@ -2,7 +2,7 @@ import {afterAll, beforeAll, describe, expect, it} from "vitest";
 import config from "../../config";
 import {Container} from "../../src/cli/Container";
 import {ImportFeedCommand} from "../../src/cli/ImportFeedCommand";
-import {DatabaseConnection} from "../../src/database/DatabaseConnection";
+import {Kysely} from "kysely";
 import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} from "./support";
 
 /**
@@ -15,13 +15,13 @@ import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} fro
 describe("importing the routeing feed", () => {
 
   let command: ImportFeedCommand;
-  let db: DatabaseConnection;
+  let db: Kysely<any>;
 
   beforeAll(async () => {
     const container = new Container();
 
     command = await container.getRouteingImportCommand();
-    db = container.getDatabaseConnection();
+    db = container.getKysely();
 
     await command.doImport(zipFixture("routeing", "RJRGF999.ZIP"));
   });

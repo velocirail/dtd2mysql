@@ -2,11 +2,19 @@ import AdmZip from "adm-zip";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import {Kysely} from "kysely";
 import {FeedConfig} from "../../config";
-import {DatabaseConnection} from "../../src/database/DatabaseConnection";
 
-// docker-compose.yml and the CI service both provide this database, everything else Container defaults
-process.env.DATABASE_NAME ??= "dtd2mysql";
+/**
+ * Which database the suite runs against. MySQL is the default because that is what the recorded rows
+ * were taken from, and every dialect is compared against the same ones.
+ */
+export const dialect = process.env.DATABASE_DIALECT ?? "mysql";
+
+// docker-compose.yml and the CI service both provide this database, sqlite just needs somewhere to live
+process.env.DATABASE_NAME ??= dialect === "sqlite"
+  ? path.join(os.tmpdir(), "dtd2mysql-integration.sqlite")
+  : "dtd2mysql";
 
 // the project compiles to CommonJS so import.meta is out, and vitest runs from the project root
 const directory = path.join(process.cwd(), "test", "integration");
@@ -48,11 +56,11 @@ export function tableNames(feed: FeedConfig): string[] {
 /**
  * Every row of every table, JSON so that the driver's row objects compare as plain data
  */
-export async function readTables(db: DatabaseConnection, tables: string[]): Promise<string> {
+export async function readTables(db: Kysely<any>, tables: string[]): Promise<string> {
   const contents: { [table: string]: unknown[] } = {};
 
   for (const table of tables) {
-    const [rows] = await db.query(`SELECT * FROM \`${table}\` ORDER BY id`);
+    const rows = await db.selectFrom(table).selectAll().orderBy("id").execute();
 
     contents[table] = JSON.parse(JSON.stringify(rows));
   }
@@ -63,8 +71,8 @@ export async function readTables(db: DatabaseConnection, tables: string[]): Prom
 /**
  * The most recent file the import recorded, which is appended to rather than reset
  */
-export async function lastProcessedFile(db: DatabaseConnection): Promise<string | undefined> {
-  const [rows] = await db.query<{ filename: string }>("SELECT filename FROM log ORDER BY id DESC LIMIT 1");
+export async function lastProcessedFile(db: Kysely<any>): Promise<string | undefined> {
+  const [row] = await db.selectFrom("log").select("filename").orderBy("id", "desc").limit(1).execute();
 
-  return rows[0]?.filename;
+  return row?.filename;
 }

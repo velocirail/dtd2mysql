@@ -8,13 +8,12 @@ import {createLogSchema, LOG_TABLE, SchemaBuilder} from "../database/SchemaBuild
 import {SchemaDialect} from "../database/SchemaDialect";
 import {FeedSchema, Table} from "../database/Schema";
 import {Database} from "../database/Database";
-import {DatabaseConnection} from "../database/DatabaseConnection";
 import * as path from "path";
-import {MySQLTable} from "../database/MySQLTable";
+import {TableWriter} from "../database/TableWriter";
 import memoize from "memoized-class-decorator";
 import {MultiRecordFile} from "../feed/file/MultiRecordFile";
 import {RecordWithManualIdentifier} from "../feed/record/FixedWidthRecord";
-import {MySQLStream, TableIndex} from "../database/MySQLStream";
+import {RecordStream, TableIndex} from "../database/RecordStream";
 import byline from "byline";
 import {finished} from "node:stream/promises";
 
@@ -27,8 +26,7 @@ const readFile = (filename: string) => byline.createStream(fs.createReadStream(f
 export class ImportFeedCommand implements CLICommand {
 
   constructor(
-    private readonly db: DatabaseConnection,
-    private readonly schemaDb: Kysely<Database>,
+    private readonly db: Kysely<Database>,
     private readonly schemaDialect: SchemaDialect,
     private readonly files: FeedConfig,
     private readonly schema: FeedSchema,
@@ -95,14 +93,20 @@ export class ImportFeedCommand implements CLICommand {
    * Create the last_file table (if it doesn't already exist)
    */
   private async createLastProcessedSchema(): Promise<void> {
-    await createLogSchema(this.schemaDb, this.schemaDialect);
+    await createLogSchema(this.db, this.schemaDialect);
   }
 
   /**
    * Set the last schedule ID in the CFA record
    */
   private async setLastScheduleId(): Promise<void> {
-    const [[lastSchedule]] = await this.db.query<{id : number}>("SELECT id FROM schedule ORDER BY id desc LIMIT 1");
+    const [lastSchedule] = await this.db
+      .selectFrom("schedule")
+      .select("id")
+      .orderBy("id", "desc")
+      .limit(1)
+      .execute();
+
     const lastId = lastSchedule ? lastSchedule.id : 0;
     const cfaFile = this.files["CFA"] as MultiRecordFile;
     const bsRecord = cfaFile.records["BS"] as RecordWithManualIdentifier;
@@ -110,16 +114,16 @@ export class ImportFeedCommand implements CLICommand {
     bsRecord.lastId = lastId;
   }
 
-  private async removeOrphanStopTimes() {
-    return Promise.all([
-      this.db.query("DELETE FROM stop_time WHERE schedule NOT IN (SELECT id FROM schedule)"),
-      this.db.query("DELETE FROM schedule_extra WHERE schedule NOT IN (SELECT id FROM schedule)")
-    ]);
+  private async removeOrphanStopTimes(): Promise<void> {
+    const schedules = this.db.selectFrom("schedule").select("id");
+
+    await this.db.deleteFrom("stop_time").where("schedule", "not in", schedules).execute();
+    await this.db.deleteFrom("schedule_extra").where("schedule", "not in", schedules).execute();
   }
 
 
   private async updateLastFile(filename: string): Promise<void> {
-    await this.schemaDb
+    await this.db
       .insertInto(LOG_TABLE)
       .values({ filename, processed: sql<string>`current_timestamp` })
       .execute();
@@ -131,7 +135,7 @@ export class ImportFeedCommand implements CLICommand {
   private async processFile(filename: string): Promise<void> {
     const file = this.getFeedFile(filename);
     const tables = await this.tables(file);
-    const tableStream = new MySQLStream(filename, file, tables);
+    const tableStream = new RecordStream(filename, file, tables);
     const stream = readFile(`${this.tmpFolder}/${filename}`).pipe(tableStream);
 
     try {
@@ -153,7 +157,7 @@ export class ImportFeedCommand implements CLICommand {
   @memoize
   private schemas(file: FeedFile): SchemaBuilder[] {
     return file.recordTypes.map(
-      record => new SchemaBuilder(this.schemaDb, this.schemaDialect, record.name, this.table(record.name))
+      record => new SchemaBuilder(this.db, this.schemaDialect, record.name, this.table(record.name))
     );
   }
 
@@ -177,9 +181,9 @@ export class ImportFeedCommand implements CLICommand {
 
     for (const record of file.recordTypes) {
       if (!index[record.name]) {
-        const db = record.orderedInserts ? await this.db.getConnection() : this.db;
-
-        index[record.name] = new MySQLTable(db, record.name);
+        index[record.name] = new TableWriter(
+          this.db, this.schemaDialect.name, record.name, record.orderedInserts
+        );
       }
     }
 
@@ -190,7 +194,7 @@ export class ImportFeedCommand implements CLICommand {
    * Close the underling database connection
    */
   public async end(): Promise<void> {
-    await Promise.all([this.db.end(), this.schemaDb.destroy()]);
+    await this.db.destroy();
   }
 
 }

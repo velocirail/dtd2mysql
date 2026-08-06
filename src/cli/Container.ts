@@ -54,22 +54,22 @@ export class Container {
 
   @memoize
   public async getFaresImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.fares, schema.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.fares, schema.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getRouteingImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.routeing, schema.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.routeing, schema.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getTimetableImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.timetable, schema.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.timetable, schema.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getNFM64ImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), this.getKysely(), this.getSchemaDialect(), config.nfm64, schema.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.nfm64, schema.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
 

@@ -2,7 +2,7 @@ import {afterAll, beforeAll, describe, expect, it} from "vitest";
 import config from "../../config";
 import {Container} from "../../src/cli/Container";
 import {ImportFeedCommand} from "../../src/cli/ImportFeedCommand";
-import {DatabaseConnection} from "../../src/database/DatabaseConnection";
+import {Kysely} from "kysely";
 import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} from "./support";
 
 /**
@@ -19,13 +19,13 @@ import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} fro
 describe("importing the timetable feed", () => {
 
   let command: ImportFeedCommand;
-  let db: DatabaseConnection;
+  let db: Kysely<any>;
 
   beforeAll(async () => {
     const container = new Container();
 
     command = await container.getTimetableImportCommand();
-    db = container.getDatabaseConnection();
+    db = container.getKysely();
 
     await command.doImport(zipFixture("timetable", "RJTTF999.ZIP"));
   });

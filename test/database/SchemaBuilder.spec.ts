@@ -1,26 +1,10 @@
 import {describe, it, expect} from 'vitest';
-import {
-  CompiledQuery,
-  DatabaseConnection,
-  DatabaseIntrospector,
-  Dialect,
-  Driver,
-  Kysely,
-  MysqlAdapter,
-  MysqlIntrospector,
-  MysqlQueryCompiler,
-  PostgresAdapter,
-  PostgresIntrospector,
-  PostgresQueryCompiler,
-  QueryResult,
-  SqliteAdapter,
-  SqliteIntrospector,
-  SqliteQueryCompiler
-} from "kysely";
+import {Kysely} from "kysely";
 import {SchemaBuilder} from "../../src/database/SchemaBuilder";
 import {SchemaDialect} from "../../src/database/SchemaDialect";
 import {mysqlSchemaDialect, postgresSchemaDialect, sqliteSchemaDialect} from "../../src/database/dialect";
 import {NodeSqliteDialect} from "../../src/database/NodeSqliteDriver";
+import {recording} from "./recording";
 import {Table} from "../../src/database/Schema";
 import {feedTables, intTable, testTable} from "./records";
 
@@ -162,75 +146,10 @@ describe("SchemaBuilder", () => {
  * Run a schema operation against a driver that records the SQL instead of executing it
  */
 async function compile(dialect: SchemaDialect, name: string, table: Table, operation: (schema: SchemaBuilder) => Promise<void>): Promise<string[]> {
-  const statements: string[] = [];
-  const db = new Kysely<any>({ dialect: new RecordingDialect(dialect, statements) });
+  const { db, statements } = recording(dialect.name);
 
   await operation(new SchemaBuilder(db, dialect, name, table));
   await db.destroy();
 
   return statements;
-}
-
-class RecordingDialect implements Dialect {
-
-  constructor(
-    private readonly dialect: SchemaDialect,
-    private readonly statements: string[]
-  ) {}
-
-  public createAdapter() {
-    switch (this.dialect.name) {
-      case "mysql": return new MysqlAdapter();
-      case "postgres": return new PostgresAdapter();
-      case "sqlite": return new SqliteAdapter();
-    }
-  }
-
-  public createQueryCompiler() {
-    switch (this.dialect.name) {
-      case "mysql": return new MysqlQueryCompiler();
-      case "postgres": return new PostgresQueryCompiler();
-      case "sqlite": return new SqliteQueryCompiler();
-    }
-  }
-
-  public createIntrospector(db: Kysely<any>): DatabaseIntrospector {
-    switch (this.dialect.name) {
-      case "mysql": return new MysqlIntrospector(db);
-      case "postgres": return new PostgresIntrospector(db);
-      case "sqlite": return new SqliteIntrospector(db);
-    }
-  }
-
-  public createDriver(): Driver {
-    return new RecordingDriver(this.statements);
-  }
-
-}
-
-class RecordingDriver implements Driver {
-
-  constructor(private readonly statements: string[]) {}
-
-  public async init(): Promise<void> {}
-
-  public async acquireConnection(): Promise<DatabaseConnection> {
-    const statements = this.statements;
-
-    return {
-      async executeQuery<O>(compiledQuery: CompiledQuery): Promise<QueryResult<O>> {
-        statements.push(compiledQuery.sql);
-
-        return { rows: [] };
-      },
-      async* streamQuery<O>(): AsyncIterableIterator<QueryResult<O>> {}
-    };
-  }
-
-  public async beginTransaction(): Promise<void> {}
-  public async commitTransaction(): Promise<void> {}
-  public async rollbackTransaction(): Promise<void> {}
-  public async releaseConnection(): Promise<void> {}
-  public async destroy(): Promise<void> {}
-
 }

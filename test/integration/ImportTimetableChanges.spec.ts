@@ -3,7 +3,7 @@ import config from "../../config";
 import {schedule, stop} from "../../config/timetable/file/MCA";
 import {Container} from "../../src/cli/Container";
 import {ImportFeedCommand} from "../../src/cli/ImportFeedCommand";
-import {DatabaseConnection} from "../../src/database/DatabaseConnection";
+import {Kysely} from "kysely";
 import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} from "./support";
 
 /**
@@ -22,7 +22,7 @@ import {expectedRows, lastProcessedFile, readTables, tableNames, zipFixture} fro
 describe("applying a timetable changes file", () => {
 
   let command: ImportFeedCommand;
-  let db: DatabaseConnection;
+  let db: Kysely<any>;
 
   beforeAll(async () => {
     await refresh();
@@ -34,7 +34,7 @@ describe("applying a timetable changes file", () => {
     const container = new Container();
 
     command = await container.getTimetableImportCommand();
-    db = container.getDatabaseConnection();
+    db = container.getKysely();
 
     await command.doImport(zipFixture("timetable-changes", "RJTTC999.ZIP"));
   });
