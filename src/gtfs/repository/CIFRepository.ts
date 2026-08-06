@@ -20,7 +20,10 @@ export class CIFRepository {
   constructor(
     private readonly db: DatabaseConnection,
     private readonly stream: Pool,
-    private readonly stationCoordinates: StationCoordinates
+    private readonly stationCoordinates: StationCoordinates,
+    // the cut off dates are worked out here rather than by the database, so that the output of a given
+    // feed does not depend on which machine ran the query, and can be pinned in a test
+    private readonly today: Temporal.PlainDate = Temporal.Now.plainDateISO()
   ) {
     proj4.defs('EPSG:27700', '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs');
   }
@@ -81,12 +84,14 @@ export class CIFRepository {
    * The second query selects all the z-trains (usually replacement buses) within three months. They already use CRS
    * codes as the location so avoid the disaster above.
    *
-   * The argument range is a mysql expression like '3 MONTH'.
-   *   It is NOT SANITIZED so it cannot be untrusted user input.
+   * The range is a period like '3 MONTH', which is parsed rather than pasted into the SQL.
    */
   public async getSchedules(range: string): Promise<ScheduleResults> {
     const scheduleBuilder = new ScheduleBuilder();
     const [[lastSchedule]] = await this.db.query<{id: number}>("SELECT id FROM schedule ORDER BY id desc LIMIT 1");
+    const from = this.today.toString();
+    const until = this.today.add(parseRange(range)).toString();
+    const threeMonths = this.today.add({ months: 3 }).toString();
 
     await Promise.all([
       scheduleBuilder.loadSchedules(this.stream.query(`
@@ -106,8 +111,8 @@ export class CIFRepository {
         (
           stop_time.id IS NULL OR crs_code IS NOT NULL
         )
-        AND runs_from < CURDATE() + INTERVAL ${range}
-        AND runs_to >= CURDATE()
+        AND runs_from < '${until}'
+        AND runs_to >= '${from}'
         AND scheduled_pass_time is null
         ORDER BY stp_indicator DESC, id, stop_id
       `)),
@@ -121,8 +126,8 @@ export class CIFRepository {
         FROM z_schedule
         LEFT JOIN z_schedule_extra ON z_schedule.id = z_schedule_extra.schedule
         JOIN z_stop_time ON z_schedule.id = z_stop_time.z_schedule
-        WHERE runs_from < CURDATE() + INTERVAL 3 MONTH
-        AND runs_to >= CURDATE()
+        WHERE runs_from < '${threeMonths}'
+        AND runs_to >= '${from}'
         ORDER BY stop_id
       `))
     ]);
@@ -141,10 +146,10 @@ export class CIFRepository {
         start_date, end_date, stp_indicator
       FROM association a
       JOIN tiploc ON assoc_location = tiploc_code
-      WHERE start_date < CURDATE() + INTERVAL 3 MONTH
-      AND end_date >= CURDATE()
+      WHERE start_date < ?
+      AND end_date >= ?
       ORDER BY stp_indicator DESC, id
-    `);
+    `, [this.today.add({ months: 3 }).toString(), this.today.toString()]);
 
     return results.map(row => new Association(
       row.id,
@@ -302,6 +307,23 @@ interface FixedLinkRow {
   friday: 0 | 1;
   saturday: 0 | 1;
   sunday: 0 | 1;
+}
+
+/**
+ * Turn a period like "3 MONTH" into something that can be added to a date
+ */
+export function parseRange(range: string): Temporal.Duration {
+  const units: { [unit: string]: string } = {
+    DAY: "days", WEEK: "weeks", MONTH: "months", YEAR: "years"
+  };
+  const [amount, unit] = range.trim().split(/\s+/);
+  const key = units[(unit ?? "").toUpperCase()];
+
+  if (!key || !Number.isInteger(Number(amount))) {
+    throw new Error(`Unable to read "${range}" as a range, expected something like "3 MONTH".`);
+  }
+
+  return Temporal.Duration.from({ [key]: Number(amount) });
 }
 
 enum FixedLinkMode {
