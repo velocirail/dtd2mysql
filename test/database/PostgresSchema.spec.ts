@@ -3,7 +3,7 @@ import {PGlite} from "@electric-sql/pglite";
 import {Kysely, PGliteDialect, sql} from "kysely";
 import {SchemaBuilder} from "../../src/database/SchemaBuilder";
 import {postgresSchemaDialect} from "../../src/database/dialect";
-import {feedRecords, testRecord} from "./records";
+import {feedTables, testTable} from "./records";
 
 /**
  * Postgres has no server in CI, so the schema is executed against PGlite, which is the real Postgres engine
@@ -24,7 +24,7 @@ describe("the postgres schema", () => {
   });
 
   it("creates, drops and recreates a table", async () => {
-    const schema = new SchemaBuilder(db, postgresSchemaDialect, testRecord("round_trip"));
+    const schema = new SchemaBuilder(db, postgresSchemaDialect, "round_trip", testTable());
 
     await schema.createSchema();
     await schema.dropSchema();
@@ -46,7 +46,7 @@ describe("the postgres schema", () => {
   });
 
   it("creates the schema twice without failing on the indexes", async () => {
-    const schema = new SchemaBuilder(db, postgresSchemaDialect, testRecord("created_twice"));
+    const schema = new SchemaBuilder(db, postgresSchemaDialect, "created_twice", testTable());
 
     await schema.createSchema();
     await schema.createSchema();
@@ -55,7 +55,7 @@ describe("the postgres schema", () => {
   });
 
   it("returns dates as Date objects until the driver is told otherwise", async () => {
-    const schema = new SchemaBuilder(db, postgresSchemaDialect, testRecord("dates"));
+    const schema = new SchemaBuilder(db, postgresSchemaDialect, "dates", testTable());
 
     await schema.createSchema();
     await db.insertInto("dates").values({
@@ -71,9 +71,9 @@ describe("the postgres schema", () => {
     expect(row.field6).to.equal("09:15:00");
   });
 
-  it("creates a table for every record in the feed configuration", async () => {
-    for (const record of feedRecords()) {
-      await new SchemaBuilder(db, postgresSchemaDialect, record).createSchema();
+  it("creates every declared table", async () => {
+    for (const [name, table] of feedTables()) {
+      await new SchemaBuilder(db, postgresSchemaDialect, name, table).createSchema();
     }
 
     const tables = await db.introspection.getTables();

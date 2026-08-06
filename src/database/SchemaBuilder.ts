@@ -1,42 +1,43 @@
 import {CreateTableBuilder, Kysely, sql} from "kysely";
 import {Database} from "./Database";
-import {getFieldType, SchemaDialect} from "./SchemaDialect";
-import {Record} from "../feed/record/Record";
+import {SchemaDialect} from "./SchemaDialect";
+import {Table} from "./Schema";
 
 export const LOG_TABLE = "log";
 
 /**
- * Creates and drops the table for a feed record in whichever database the dialect describes
+ * Creates and drops a declared table in whichever database the dialect describes
  */
 export class SchemaBuilder {
 
   constructor(
     private readonly db: Kysely<Database>,
     private readonly dialect: SchemaDialect,
-    private readonly record: Record
+    private readonly name: string,
+    private readonly table: Table
   ) {}
 
   /**
    * Create the table and its indexes
    */
   public async createSchema(): Promise<void> {
-    // the column names come from the feed definition at runtime, so the builder cannot track them
+    // the column names are known to the declaration but not to the builder's own types
     let table: CreateTableBuilder<string, string> =
-      this.dialect.addIdColumn(this.db.schema.createTable(this.record.name).ifNotExists());
+      this.dialect.addIdColumn(this.db.schema.createTable(this.name).ifNotExists());
 
-    for (const [name, field] of Object.entries(this.record.fields)) {
-      const type = this.dialect.columnType(getFieldType(field));
+    for (const [name, column] of Object.entries(this.table.columns)) {
+      const type = this.dialect.columnType(column.type);
 
-      table = table.addColumn(name, type, column => field.nullable ? column : column.notNull());
+      table = table.addColumn(name, type, builder => column.nullable ? builder : builder.notNull());
     }
 
-    if (this.record.key.length > 0) {
-      table = table.addUniqueConstraint(`${this.record.name}_key`, this.record.key);
+    if (this.table.key.length > 0) {
+      table = table.addUniqueConstraint(`${this.name}_key`, [...this.table.key]);
     }
 
     await table.execute();
 
-    for (const index of this.record.indexes) {
+    for (const index of this.table.indexes) {
       await this.createIndex(index);
     }
   }
@@ -45,7 +46,7 @@ export class SchemaBuilder {
    * Drop the table, taking its indexes with it
    */
   public async dropSchema(): Promise<void> {
-    await this.db.schema.dropTable(this.record.name).ifExists().execute();
+    await this.db.schema.dropTable(this.name).ifExists().execute();
   }
 
   /**
@@ -56,8 +57,8 @@ export class SchemaBuilder {
   private async createIndex(column: string): Promise<void> {
     try {
       await this.db.schema
-        .createIndex(`${this.record.name}_${column}_idx`)
-        .on(this.record.name)
+        .createIndex(`${this.name}_${column}_idx`)
+        .on(this.name)
         .column(column)
         .execute();
     }

@@ -1,0 +1,704 @@
+{
+  "advance_ticket": [
+    {
+      "id": 1,
+      "ticket_code": "AAA",
+      "restriction_code": "AA",
+      "restriction_flag": "A",
+      "toc_id": "AA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "check_type": "A",
+      "ap_data": "AAAAAAAA",
+      "booking_time": "10:00:00"
+    }
+  ],
+  "fare": [
+    {
+      "id": 1,
+      "flow_id": 1111111,
+      "ticket_code": "AAA",
+      "fare": 11111111,
+      "restriction_code": "AA"
+    }
+  ],
+  "flow": [
+    {
+      "id": 1,
+      "origin_code": "AAAA",
+      "destination_code": "AAAA",
+      "route_code": "11111",
+      "status_code": "111",
+      "usage_code": "A",
+      "direction": "A",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "toc": "AAA",
+      "cross_london_ind": 1,
+      "ns_disc_ind": 1,
+      "publication_ind": "A",
+      "flow_id": 1111111
+    }
+  ],
+  "location": [
+    {
+      "id": 1,
+      "uic": "AAAAAAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "area_admin_code": "AA",
+      "nlc": "AAAA",
+      "description": "AAAAAAAAAAAAAAAA",
+      "crs": "AAA",
+      "resv": "AAAAA",
+      "ers_country": "AA",
+      "ers_code": "AAA",
+      "fare_group": "AAAAAA",
+      "county": "AA",
+      "pte_code": "AA",
+      "zone_no": "AAAA",
+      "zone_ind": "AA",
+      "region": "A",
+      "hierarchy": "A",
+      "cc_desc_out": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "cc_desc_rtn": "AAAAAAAAAAAAAAAA",
+      "atb_desc_out": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "atb_desc_rtn": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "special_facilities": "AAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "lul_direction_ind": "A",
+      "lul_uts_mode": "A",
+      "lul_zone_1": 1,
+      "lul_zone_2": 1,
+      "lul_zone_3": 1,
+      "lul_zone_4": 1,
+      "lul_zone_5": 1,
+      "lul_zone_6": 1,
+      "lul_uts_london_stn": "A",
+      "uts_code": "AAA",
+      "uts_a_code": "AAA",
+      "uts_ptr_bias": "A",
+      "uts_offset": "A",
+      "uts_north": "AAA",
+      "uts_east": "AAA",
+      "uts_south": "AAA",
+      "uts_west": "AAA"
+    }
+  ],
+  "location_association": [
+    {
+      "id": 1,
+      "uic_code": "AAAAAAA",
+      "end_date": "2025-01-01",
+      "assoc_uic_code": "AAAAAAA",
+      "assoc_crs_code": "AAA"
+    }
+  ],
+  "location_group": [
+    {
+      "id": 1,
+      "group_uic_code": "AAAAAAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAA",
+      "ers_country": "AA",
+      "ers_code": "AAA"
+    }
+  ],
+  "location_group_member": [
+    {
+      "id": 1,
+      "group_uic_code": "AAAAAAA",
+      "end_date": "2025-01-01",
+      "member_uic_code": "AAAAAAA",
+      "member_crs_code": "AAA"
+    }
+  ],
+  "location_railcard": [
+    {
+      "id": 1,
+      "uic_code": "AAAAAAA",
+      "railcard_code": "AAA",
+      "end_date": "2025-01-01"
+    }
+  ],
+  "location_synonym": [
+    {
+      "id": 1,
+      "uic_code": "AAAAAAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAA"
+    }
+  ],
+  "non_derivable_fare": [
+    {
+      "id": 1,
+      "origin_code": "AAAA",
+      "destination_code": "AAAA",
+      "route_code": "11111",
+      "railcard_code": "AAA",
+      "ticket_code": "AAA",
+      "nd_record_type": "A",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "suppress_mkr": 1,
+      "adult_fare": 11111111,
+      "child_fare": 11111111,
+      "restriction_code": "AA",
+      "composite_indicator": "A",
+      "cross_london_ind": 1,
+      "ps_ind": "A"
+    }
+  ],
+  "non_derivable_fare_override": [
+    {
+      "id": 1,
+      "origin_code": "AAAA",
+      "destination_code": "AAAA",
+      "route_code": "11111",
+      "railcard_code": "AAA",
+      "ticket_code": "AAA",
+      "nd_record_type": "A",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "suppress_mkr": 1,
+      "adult_fare": 11111111,
+      "child_fare": 11111111,
+      "restriction_code": "AA",
+      "composite_indicator": "A",
+      "cross_london_ind": 1,
+      "ps_ind": "A"
+    }
+  ],
+  "non_standard_discount": [
+    {
+      "id": 1,
+      "origin_code": "AAAA",
+      "destination_code": "AAAA",
+      "route_code": "11111",
+      "railcard_code": "AAA",
+      "ticket_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "use_nlc": "AAAA",
+      "adult_nodis_flag": "A",
+      "adult_add_on_amount": 11111111,
+      "adult_rebook_flag": "A",
+      "child_nodis_flag": "A",
+      "child_add_on_amount": 11111111,
+      "child_rebook_flag": "A"
+    }
+  ],
+  "package": [
+    {
+      "id": 1,
+      "package_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "restriction_code": "AA",
+      "origin_facilities": "AAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "destination_facilities": "AAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "package_supplement": [
+    {
+      "id": 1,
+      "package_code": "AAA",
+      "end_date": "2025-01-01",
+      "supplement_code": "AAA",
+      "direction": "A",
+      "pack_number": "AAA",
+      "origin_facility": "A",
+      "dest_facility": "A"
+    }
+  ],
+  "railcard": [
+    {
+      "id": 1,
+      "railcard_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "holder_type": "A",
+      "description": "AAAAAAAAAAAAAAAAAAAA",
+      "restricted_by_issue": 1,
+      "restricted_by_area": 1,
+      "restricted_by_train": 1,
+      "restricted_by_date": 1,
+      "master_code": "AAA",
+      "display_flag": "A",
+      "max_passengers": 111,
+      "min_passengers": 111,
+      "max_holders": 111,
+      "min_holders": 111,
+      "max_acc_adults": 111,
+      "min_acc_adults": 111,
+      "max_adults": 111,
+      "min_adults": 111,
+      "max_children": 111,
+      "min_children": 111,
+      "price": 11111111,
+      "discount_price": 11111111,
+      "validity_period": "AAAA",
+      "last_valid_date": "2025-01-01",
+      "physical_card": 1,
+      "capri_ticket_type": "AAA",
+      "adult_status": "AAA",
+      "child_status": "AAA",
+      "aaa_status": "AAA"
+    }
+  ],
+  "railcard_minimum_fare": [
+    {
+      "id": 1,
+      "railcard_code": "AAA",
+      "ticket_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "minimum_fare": 11111111
+    }
+  ],
+  "restriction_date": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "start_date": "2025-01-01",
+      "end_date": "2025-01-01",
+      "atb_desc": "AAAAA"
+    }
+  ],
+  "restriction_exception": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "exception_code": "A",
+      "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "restriction_header": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "desc_out": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "desc_ret": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "type_out": "A",
+      "type_ret": "A",
+      "change_ind": 1
+    }
+  ],
+  "restriction_header_date": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "date_from": "AAAA",
+      "date_to": "AAAA",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 1,
+      "sunday": 1,
+      "start_date": null,
+      "end_date": null
+    }
+  ],
+  "restriction_railcard": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "railcard_code": "AAA",
+      "sequence_no": "AAAA",
+      "ticket_code": "AAA",
+      "route_code": "11111",
+      "location": "AAA",
+      "restriction_code": "AA",
+      "total_ban": 1
+    }
+  ],
+  "restriction_ticket_calendar": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "ticket_code": "AAA",
+      "cal_type": "A",
+      "route_code": "11111",
+      "country_code": "A",
+      "date_from": "AAAA",
+      "date_to": "AAAA",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 1,
+      "sunday": 1,
+      "start_date": null,
+      "end_date": null
+    }
+  ],
+  "restriction_time": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "sequence_no": "AAAA",
+      "out_ret": "A",
+      "time_from": "10:00:00",
+      "time_to": "10:00:00",
+      "arr_dep_via": "A",
+      "location": "AAA",
+      "rstr_type": "A",
+      "train_type": "A",
+      "min_fare_flag": 1
+    }
+  ],
+  "restriction_time_date": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "sequence_no": "AAAA",
+      "out_ret": "A",
+      "date_from": "AAAA",
+      "date_to": "AAAA",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 1,
+      "sunday": 1,
+      "start_date": null,
+      "end_date": null
+    }
+  ],
+  "restriction_time_toc": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "sequence_no": "AAAA",
+      "out_ret": "A",
+      "toc_code": "AA"
+    }
+  ],
+  "restriction_train": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "train_no": "AAAAAA",
+      "out_ret": "A",
+      "quota_ind": "A",
+      "sleeper_ind": "A"
+    }
+  ],
+  "restriction_train_date": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "train_no": "AAAAAA",
+      "out_ret": "A",
+      "date_from": "AAAA",
+      "date_to": "AAAA",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 1,
+      "sunday": 1,
+      "start_date": null,
+      "end_date": null
+    }
+  ],
+  "restriction_train_quota": [
+    {
+      "id": 1,
+      "cf_mkr": "A",
+      "restriction_code": "AA",
+      "train_no": "AAAAAA",
+      "out_ret": "A",
+      "location": "AAA",
+      "quota_ind": "A",
+      "arr_dep": "A"
+    }
+  ],
+  "route": [
+    {
+      "id": 1,
+      "route_code": "AAAAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAA",
+      "atb_desc_1": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "atb_desc_2": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "atb_desc_3": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "atb_desc_4": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "cc_desc": "AAAAAAAAAAAAAAAA",
+      "aaa_desc": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "uts_mode": "A",
+      "uts_zone_1": 1,
+      "uts_zone_2": 1,
+      "uts_zone_3": 1,
+      "uts_zone_4": 1,
+      "uts_zone_5": 1,
+      "uts_zone_6": 1,
+      "uts_north": "AAA",
+      "uts_east": "AAA",
+      "uts_south": "AAA",
+      "uts_west": "AAA"
+    }
+  ],
+  "route_location": [
+    {
+      "id": 1,
+      "route_code": "AAAAA",
+      "end_date": "2025-01-01",
+      "admin_area_code": "AAA",
+      "nlc_code": "AAAA",
+      "crs_code": "AAA",
+      "incl_excl": "A"
+    }
+  ],
+  "rover": [
+    {
+      "id": 1,
+      "rover_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "ticket_desc": "AAAAAAAAAAAAAAA",
+      "capri_ticket_code": "AAA",
+      "rover_accounting_code": "AAAA",
+      "days_travel": 111,
+      "months_valid": 11,
+      "days_valid": 11
+    }
+  ],
+  "rover_price": [
+    {
+      "id": 1,
+      "rover_code": "AAA",
+      "end_date": "2025-01-01",
+      "railcard_code": "AAA",
+      "rover_class": 1,
+      "adult_fare": 11111111,
+      "child_fare": 11111111,
+      "restriction_code": "AA"
+    }
+  ],
+  "station_cluster": [
+    {
+      "id": 1,
+      "cluster_id": "AAAA",
+      "cluster_nlc": "AAAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01"
+    }
+  ],
+  "status": [
+    {
+      "id": 1,
+      "status_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "atb_desc": "AAAAA",
+      "cc_desc": "AAAAA",
+      "uts_code": "A",
+      "first_single_max_flat": 11111111,
+      "first_return_max_flat": 11111111,
+      "std_single_max_flat": 11111111,
+      "std_return_max_flat": 11111111,
+      "first_lower_min": 11111111,
+      "first_higher_min": 11111111,
+      "std_lower_min": 11111111,
+      "std_higher_min": 11111111,
+      "fs_mkr": 1,
+      "fr_mkr": 1,
+      "ss_mkr": 1,
+      "sr_mkr": 1
+    }
+  ],
+  "status_discount": [
+    {
+      "id": 1,
+      "status_code": "AAA",
+      "end_date": "2025-01-01",
+      "discount_category": 11,
+      "discount_indicator": "A",
+      "discount_percentage": 111
+    }
+  ],
+  "supplement": [
+    {
+      "id": 1,
+      "supplement_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAAAAAA",
+      "short_desc": "AAAAAAAAAAAA",
+      "suppl_type": "AAA",
+      "price": 11111,
+      "cpf_ticket_type": "AAAAA",
+      "min_group_size": 1,
+      "max_group_size": 1,
+      "per_leg_or_dir": "A",
+      "class_type": "A",
+      "capri_code": "AAA",
+      "sep_tkt_ind": "A",
+      "resvn_type": "AA",
+      "sundry_code": "11111"
+    }
+  ],
+  "supplement_override": [
+    {
+      "id": 1,
+      "supplement_code": "AAA",
+      "end_date": "2025-01-01",
+      "overridden_supplement": "AAA"
+    }
+  ],
+  "supplement_rule": [
+    {
+      "id": 1,
+      "rule_number": 111,
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "train_uid": "AAAAAAA",
+      "train_uid_desc": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "fare_class": "A",
+      "quota": "A",
+      "weekend_first": "A",
+      "silver_standard": "A",
+      "railcard": "A",
+      "catering_code": "A",
+      "sleeper": "A",
+      "accom_class": "A",
+      "status": "A",
+      "reservation_status": "AAA",
+      "sectors": "AAA"
+    }
+  ],
+  "supplement_rule_applies": [
+    {
+      "id": 1,
+      "rule_number": 111,
+      "end_date": "2025-01-01",
+      "ie_marker": "A",
+      "condition_type": "A",
+      "ie_code": "AAA"
+    }
+  ],
+  "supplement_rule_supplement": [
+    {
+      "id": 1,
+      "rule_number": 111,
+      "end_date": "2025-01-01",
+      "supplement_code": "AAA",
+      "om_flag": "A"
+    }
+  ],
+  "ticket_type": [
+    {
+      "id": 1,
+      "ticket_code": "AAA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "quote_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAA",
+      "tkt_class": 1,
+      "tkt_type": "A",
+      "tkt_group": "A",
+      "last_valid_day": "2025-01-01",
+      "max_passengers": 111,
+      "min_passengers": 111,
+      "max_adults": 111,
+      "min_adults": 111,
+      "max_children": 111,
+      "min_children": 111,
+      "restricted_by_date": 1,
+      "restricted_by_train": 1,
+      "restricted_by_area": 1,
+      "validity_code": "AA",
+      "atb_description": "AAAAAAAAAAAAAAAAAAAA",
+      "lul_xlondon_issue": 1,
+      "reservation_required": "A",
+      "capri_code": "AAA",
+      "lul_93": 1,
+      "uts_code": "AA",
+      "time_restriction": 1,
+      "free_pass_lul": 1,
+      "package_mkr": "A",
+      "fare_multiplier": 111,
+      "discount_category": 11
+    }
+  ],
+  "ticket_validity": [
+    {
+      "id": 1,
+      "validity_code": "AA",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "description": "AAAAAAAAAAAAAAAAAAAA",
+      "out_days": 11,
+      "out_months": 11,
+      "ret_days": 11,
+      "ret_months": 11,
+      "ret_after_days": 11,
+      "ret_after_months": 11,
+      "ret_after_day": "AA",
+      "break_out": 1,
+      "break_in": 1,
+      "out_description": "AAAAAAAAAAAAAA",
+      "rtn_description": "AAAAAAAAAAAAAA"
+    }
+  ],
+  "toc": [
+    {
+      "id": 1,
+      "toc_id": "AA",
+      "toc_name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "active": 1
+    }
+  ],
+  "toc_fare": [
+    {
+      "id": 1,
+      "fare_toc_id": "AAA",
+      "toc_id": "AA",
+      "fare_toc_name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "toc_specific_ticket": [
+    {
+      "id": 1,
+      "ticket_code": "AAA",
+      "restriction_code": "AA",
+      "restriction_flag": "A",
+      "direction": "A",
+      "toc_id": "AA",
+      "toc_type": "A",
+      "end_date": "2025-01-01",
+      "start_date": "2025-01-01",
+      "sleeper_mkr": 1,
+      "inc_exc_stock": "A",
+      "stock_list": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ]
+}

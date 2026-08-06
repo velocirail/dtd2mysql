@@ -125,6 +125,19 @@ npm install --dev
 npm test
 ```
 
+There is also an integration test that imports every feed and compares every row it writes against
+`test/integration/expected`. It needs a database, so it is run separately:
+
+```
+docker compose up -d
+npm run test:integration
+```
+
+The timetable fixture is hand written and realistic. The fares, routeing and nfm64 fixtures are derived
+from the feed definitions by `npm run fixture:generate`, which is only needed when a record definition
+changes. The expected rows are updated deliberately with `npm run test:integration -- -u`, and a change
+to them should be explained rather than accepted.
+
 If you would like to send a pull request please write your contribution in TypeScript and if possible, add a test.
 
 ## License

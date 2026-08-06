@@ -6,6 +6,7 @@ import {FeedFile} from "../feed/file/FeedFile";
 import {Kysely, sql} from "kysely";
 import {createLogSchema, LOG_TABLE, SchemaBuilder} from "../database/SchemaBuilder";
 import {SchemaDialect} from "../database/SchemaDialect";
+import {FeedSchema, Table} from "../database/Schema";
 import {Database} from "../database/Database";
 import {DatabaseConnection} from "../database/DatabaseConnection";
 import * as path from "path";
@@ -30,6 +31,7 @@ export class ImportFeedCommand implements CLICommand {
     private readonly schemaDb: Kysely<Database>,
     private readonly schemaDialect: SchemaDialect,
     private readonly files: FeedConfig,
+    private readonly schema: FeedSchema,
     private readonly tmpFolder: string
   ) { }
 
@@ -150,7 +152,23 @@ export class ImportFeedCommand implements CLICommand {
 
   @memoize
   private schemas(file: FeedFile): SchemaBuilder[] {
-    return file.recordTypes.map(record => new SchemaBuilder(this.schemaDb, this.schemaDialect, record));
+    return file.recordTypes.map(
+      record => new SchemaBuilder(this.schemaDb, this.schemaDialect, record.name, this.table(record.name))
+    );
+  }
+
+  /**
+   * The declared table a record writes to. A record without one is a feed definition that was added
+   * without declaring where it goes, which is worth failing on rather than silently skipping.
+   */
+  private table(name: string): Table {
+    const table = this.schema[name];
+
+    if (!table) {
+      throw new Error(`No table is declared for ${name} in config/schema.`);
+    }
+
+    return table;
   }
 
   @memoize

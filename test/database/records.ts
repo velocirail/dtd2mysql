@@ -1,4 +1,8 @@
 import config, {FeedConfig} from "../../config";
+import schema from "../../config/schema";
+import {
+  boolean, char, date, double, integer, nullable, Table, table, time, varchar
+} from "../../src/database/Schema";
 import {Record} from "../../src/feed/record/Record";
 import {FixedWidthRecord} from "../../src/feed/record/FixedWidthRecord";
 import {IntField, ZeroFillIntField} from "../../src/feed/field/IntField";
@@ -42,4 +46,37 @@ export function feedRecords(): Record[] {
   const feeds: FeedConfig[] = Object.values(config);
 
   return feeds.flatMap(feed => Object.values(feed).flatMap(file => file.recordTypes));
+}
+
+/**
+ * The declared table matching testRecord, using every column type
+ */
+export function testTable(): Table {
+  return table({
+    field: integer(4),
+    field2: char(3),
+    field3: char(5),
+    field4: varchar(5),
+    field5: date,
+    field6: nullable(time),
+    field7: boolean,
+    field8: double(7, 5)
+  }, {
+    key: ["field", "field4"],
+    indexes: ["field5", "field6"]
+  });
+}
+
+/**
+ * The declared table matching intRecord
+ */
+export function intTable(length: number): Table {
+  return table({ sized: integer(length) });
+}
+
+/**
+ * Every declared table across all of the feeds, with its name
+ */
+export function feedTables(): [string, Table][] {
+  return Object.values(schema).flatMap(feed => Object.entries(feed));
 }

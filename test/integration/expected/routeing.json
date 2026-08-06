@@ -1,0 +1,167 @@
+{
+  "easement": [
+    {
+      "id": 1,
+      "easement_ref": "AAAAAA",
+      "start_date": "2025-01-01",
+      "end_date": "2025-01-01",
+      "text_ref": "AAAAAA",
+      "easement_type": 1,
+      "easement_class": 1,
+      "category": 1,
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 1,
+      "sunday": 1
+    }
+  ],
+  "easement_detail": [
+    {
+      "id": 1,
+      "easement_ref": "AAAAAA",
+      "detail_type": 1,
+      "detail_code": "AAAAAAAA"
+    }
+  ],
+  "easement_exception": [
+    {
+      "id": 1,
+      "easement_ref": "AAAAAA",
+      "exception_type": 1,
+      "exception_code": "AAAAAAAA"
+    }
+  ],
+  "easement_location": [
+    {
+      "id": 1,
+      "easement_ref": "AAAAAA",
+      "location_code": "AAA",
+      "location_modifier": 1
+    }
+  ],
+  "easement_text": [
+    {
+      "id": 1,
+      "text_ref": "AAAAAA",
+      "easement_text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "easement_toc": [
+    {
+      "id": 1,
+      "text_ref": "AAAAAA",
+      "toc": "AA"
+    }
+  ],
+  "link": [
+    {
+      "id": 1,
+      "start_node": "AAA",
+      "end_node": "AAA",
+      "map_code": "AA"
+    }
+  ],
+  "location": [
+    {
+      "id": 1,
+      "uic_code": "AAA",
+      "nlc_code": "AAAA",
+      "group_code": "AAAA",
+      "crs_code": "AAA",
+      "county_code": "AA",
+      "zone_code": "AAAA",
+      "start_date": "2025-01-01",
+      "end_date": "2025-01-01"
+    }
+  ],
+  "london_route": [
+    {
+      "id": 1,
+      "route_code": "11111",
+      "london_marker": 1
+    }
+  ],
+  "london_station": [
+    {
+      "id": 1,
+      "crs_code": "AAA",
+      "lt_marker": 1,
+      "xlondon_marker": 1
+    }
+  ],
+  "map": [
+    {
+      "id": 1,
+      "map_identifier": "AA"
+    }
+  ],
+  "new_station": [
+    {
+      "id": 1,
+      "nfm64_station_code": "AAA",
+      "new_station_code": "AAA",
+      "start_date": "2025-01-01",
+      "end_date": "2025-01-01"
+    }
+  ],
+  "permitted_route": [
+    {
+      "id": 1,
+      "start_routeing_point": "AAA",
+      "end_routeing_point": "AAA",
+      "map_code": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "route_data": [
+    {
+      "id": 1,
+      "route_code": "11111",
+      "entry_type": "A",
+      "crs_code": "AAA",
+      "group_mkr": 1,
+      "mode_code": "111",
+      "toc_id": "AA"
+    }
+  ],
+  "routeing_node": [
+    {
+      "id": 1,
+      "node": "AAA"
+    }
+  ],
+  "routeing_point": [
+    {
+      "id": 1,
+      "routeing_point": "AAA"
+    }
+  ],
+  "station_group": [
+    {
+      "id": 1,
+      "station_group_id": "AAA",
+      "main_station": "AAA"
+    }
+  ],
+  "station_link": [
+    {
+      "id": 1,
+      "start_station": "AAA",
+      "end_station": "AAA",
+      "distance": 11.1111
+    }
+  ],
+  "station_routeing_point": [
+    {
+      "id": 1,
+      "station_identifier": "AAA",
+      "routeing_point_1": "AAA",
+      "routeing_point_2": "AAA",
+      "routeing_point_3": "AAA",
+      "routeing_point_4": "AAA",
+      "station_group_id": "AAA"
+    }
+  ]
+}

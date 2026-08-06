@@ -13,6 +13,8 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "fixture:generate": "tsx test/integration/generateFixtures.ts",
     "watch-test": "vitest",
     "start": "tsx ./src/index.ts",
     "prepublishOnly": "tsc -p ./ --outDir dist/",
