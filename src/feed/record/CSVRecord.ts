@@ -1,22 +1,22 @@
 
 import {Field, FieldValue} from "../field/Field";
-import {AnyFieldMap, FieldMap, ParsedRecord, Record, RecordAction} from "./Record";
+import {FieldMap, ParsedRecord, Record, RecordAction} from "./Record";
 import memoize from "memoized-class-decorator";
 
-export class CSVRecord<Name extends string = string, F extends AnyFieldMap = FieldMap> implements Record<Name, F> {
+export class CSVRecord implements Record {
 
   constructor(
-    public readonly name: Name,
-    public readonly key: (keyof F & string)[],
-    public readonly fields: F,
-    public readonly indexes: (keyof F & string)[] = [],
+    public readonly name: string,
+    public readonly key: string[],
+    public readonly fields: FieldMap,
+    public readonly indexes: string[] = [],
     public readonly fieldDelimiter: string | RegExp = ",",
     public readonly orderedInserts: boolean = false
   ) {}
 
   @memoize
   private get fieldValues(): [string, Field][] {
-    return Object.entries(this.fields as FieldMap);
+    return Object.entries(this.fields);
   }
 
   /**

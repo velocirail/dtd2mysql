@@ -10,7 +10,7 @@ export interface RecordWithLastId {
   lastId: number;
 }
 
-export class ForeignKeyField extends Field<false> {
+export class ForeignKeyField extends Field {
 
   constructor(private readonly foreignRecord: RecordWithLastId, public readonly offset = 0) {
     super(0, 1, false, []);

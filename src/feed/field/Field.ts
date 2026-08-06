@@ -2,21 +2,14 @@
 import memoize from "memoized-class-decorator";
 
 /**
- * Parent class for all fields.
- *
- * The nullable flag is a type parameter rather than a boolean so that a column declared as
- * new TextField(0, 4, true) is derived as string | null and one without it as string.
- *
- * Note that parse is protected on purpose. Several field types are structurally identical, and a
- * protected member is what makes TypeScript treat them as distinct types, which is what lets the
- * derived column types tell a date from a piece of text.
+ * Parent class for all fields
  */
-export abstract class Field<N extends boolean = boolean> {
+export abstract class Field {
 
   constructor(
     public readonly position: number,
     public readonly length: number,
-    public readonly nullable: N = false as N,
+    public readonly nullable: boolean = false,
     public readonly nullChars: string[] = [" ", "*"]
   ) {}
 

@@ -2,24 +2,24 @@
 import {FeedFile} from "./FeedFile";
 import {Record} from "../record/Record";
 
-export class SingleRecordFile<R extends Record = Record> implements FeedFile<R> {
+export class SingleRecordFile implements FeedFile {
 
   constructor(
-    private readonly recordType: R,
+    private readonly recordType: Record,
     private readonly filter: RecordFilter | null = null
   ) {}
 
   /**
    * Return the record type wrapped in an array
    */
-  public get recordTypes(): R[] {
+  public get recordTypes(): Record[] {
     return [this.recordType];
   }
 
   /**
    * Return the record type
    */
-  public getRecord(line: string): R | null {
+  public getRecord(line: string): Record | null {
     if (this.filter === null || this.filter(line)) {
       return this.recordType;
     }

@@ -1,12 +1,12 @@
 
 import {Field, FieldValue} from "../field/Field";
 
-export interface Record<Name extends string = string, F extends AnyFieldMap = FieldMap> {
+export interface Record {
 
-  name: Name;
-  key: (keyof F & string)[];
-  fields: F;
-  indexes: (keyof F & string)[];
+  name: string;
+  key: string[];
+  fields: FieldMap;
+  indexes: string[];
   orderedInserts: boolean;
 
   /**
@@ -19,16 +19,6 @@ export interface Record<Name extends string = string, F extends AnyFieldMap = Fi
 export interface FieldMap {
   [field: string]: Field;
 }
-
-/**
- * The constraint for a generic field map.
- *
- * It deliberately says nothing about the fields. Naming any property of Field here, nullable in
- * particular, would make it the contextual type for the field map literals in config, and the nullability
- * of every field that relies on the default would widen from false back to boolean, taking the derived
- * column types with it.
- */
-export type AnyFieldMap = { [field: string]: object };
 
 export enum RecordAction {
   Insert = "I",

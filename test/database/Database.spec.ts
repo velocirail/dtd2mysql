@@ -1,11 +1,11 @@
 import {describe, it, expect} from 'vitest';
 import {Generated} from "kysely";
 import {Database} from "../../src/database/Database";
-import {feedRecords} from "./records";
+import {feedTables} from "./records";
 
 /**
- * The schema type is derived from the feed definitions, so these are type assertions rather than runtime
- * ones. They are checked by npm run typecheck, which is the only thing that reads them.
+ * The schema type is read off the declarations in config/schema, so these are type assertions rather than
+ * runtime ones. They are checked by npm run typecheck, which is the only thing that reads them.
  */
 type Equals<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
 type Assert<T extends true> = T;
@@ -35,9 +35,9 @@ type _tables = Assert<"schedule" | "stop_time" | "tiploc" | "location" | "additi
 
 describe("Database", () => {
 
-  it("has a type for every table the importer creates", () => {
+  it("has a type for every declared table", () => {
     // the assertions above are compile time, this keeps the two lists honest at runtime
-    const tables: string[] = feedRecords().map(record => record.name);
+    const tables = feedTables().map(([name]) => name);
 
     expect(new Set(tables).size).to.be.greaterThan(0);
     expect(tables).to.contain("schedule");

@@ -4,9 +4,9 @@ import {Field} from "./Field";
 /**
  * DTD date field (e.g. 3112999)
  */
-export class DateField<N extends boolean = false> extends Field<N> {
+export class DateField extends Field {
 
-  constructor(start: number, nullable: N = false as N) {
+  constructor(start: number, nullable: boolean = false) {
     super(start, 8, nullable, [" ", "*", "0"]);
   }
 
@@ -22,9 +22,9 @@ export class DateField<N extends boolean = false> extends Field<N> {
 /**
  * Short format DTD date (e.g. 170531)
  */
-export class ShortDateField<N extends boolean = false> extends Field<N> {
+export class ShortDateField extends Field {
 
-  constructor(start: number, nullable: N = false as N) {
+  constructor(start: number, nullable: boolean = false) {
     super(start, 6, nullable, [" ", "*", "0"]);
   }
 
@@ -41,7 +41,7 @@ export class ShortDateField<N extends boolean = false> extends Field<N> {
 /**
  * Placeholder date for the restriction date columns
  */
-export class NullDateField extends Field<true> {
+export class NullDateField extends Field {
 
   constructor() {
     super(0, 0, true, [""]);

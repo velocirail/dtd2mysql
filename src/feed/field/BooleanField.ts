@@ -1,11 +1,11 @@
 
 import {Field, ParseError} from "./Field";
 
-export class BooleanField<N extends boolean = false> extends Field<N> {
+export class BooleanField extends Field {
 
   constructor(
     public readonly start: number,
-    public readonly nullable: N = false as N,
+    public readonly nullable: boolean = false,
     public readonly truthyChars: string[] = ["Y", "1"],
     public readonly falseChars: string[] = ["N", "0"],
     public readonly nullChars: string[] = [" ", "*"]
