@@ -65,6 +65,12 @@ export const integer = (length: number): Column<number> =>
 export const double = (length: number, decimalDigits: number): Column<number> =>
   column({ type: "double", length, decimalDigits });
 
+/**
+ * A signed number with no declared precision. No feed field parses to one, the fares and timetable values
+ * all have a width the record gives them, but a coordinate does not and cannot be unsigned.
+ */
+export const float: Column<number> = column({ type: "float" });
+
 /** The feed parses booleans to 1 and 0, so they are stored and returned as numbers */
 export const boolean: Column<number> = column({ type: "boolean" });
 

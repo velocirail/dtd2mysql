@@ -14,6 +14,7 @@ export const mysqlSchemaDialect: SchemaDialect = {
       case "date": return sql.raw("date");
       case "time": return sql.raw("time");
       case "double": return sql.raw(`double(${field.length}, ${field.decimalDigits}) unsigned`);
+      case "float": return sql.raw("double");
       case "int": return sql.raw(`${intType(field.length)}(${field.length}) unsigned`);
       case "foreignKey": return sql.raw("int(11) unsigned");
     }

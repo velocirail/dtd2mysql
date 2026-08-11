@@ -6,9 +6,8 @@ An import tool for the British rail fares, routeing and timetable feeds into a d
 
 Although both the timetable and fares feed are open data you will need to obtain the fares feed via the [ATOC website](http://data.atoc.org/fares-data). The formal specification for the data inside the feed also available on the [ATOC website](http://data.atoc.org/sites/all/themes/atoc/files/SP0035.pdf).
 
-The import and the GTFS output run against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT`
-and defaulting to MySQL. The database driver is yours to choose, so install the one you need alongside
-this:
+Every command runs against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT` and defaulting to
+MySQL. The database driver is yours to choose, so install the one you need alongside this:
 
 | database | install |
 | --- | --- |
@@ -16,7 +15,7 @@ this:
 | Postgres | `pg`, and `pg-cursor` as well if you want the GTFS output, which streams |
 | SQLite | nothing, it is built into node |
 
-Note that `--fares-clean` still queries MySQL directly. PRs are very welcome.
+`DATABASE_PORT` defaults to 3306, so Postgres needs it setting to 5432.
 
 ## Requirements
 
@@ -44,7 +43,7 @@ dtd2mysql --fares /path/to/RJFAFxxx.ZIP
 ```
 ### Clean 
 
-Removes expired data and invalid fares, corrects railcard passenger quantities, adds full date entries to restriction date records. This command will occasionally fail due to a MySQL timeout (depending on hardware), re-running the command should correct the problem.
+Removes expired data and invalid fares, corrects railcard passenger quantities, adds full date entries to restriction date records. It also records which restriction applies to each origin, destination and route in `network_flow_restriction`.
 
 ```
 dtd2mysql --fares-clean
@@ -65,6 +64,16 @@ Convert the DTD/TTIS version of the timetable (up to 3 months into the future) t
 ```
 dtd2mysql --timetable /path/to/RJTTFxxx.ZIP
 dtd2mysql --gtfs-zip filename-of-gtfs.zip
+```
+
+### Load GTFS back into the database
+
+Reads the GTFS files in a directory into a table per file, replacing whatever is already there. The
+tables are named after the files, so `stops.txt` becomes `stops`.
+
+```
+dtd2mysql --gtfs /path/to/output/
+dtd2mysql --gtfs-import /path/to/output/
 ```
 
 ## Routeing Guide

@@ -2,7 +2,9 @@ import {describe, it, expect, beforeAll, afterAll} from 'vitest';
 import {PGlite} from "@electric-sql/pglite";
 import {Kysely, PGliteDialect, sql} from "kysely";
 import {SchemaBuilder} from "../../src/database/SchemaBuilder";
+import {GTFSSchemaBuilder} from "../../src/database/GTFSSchema";
 import {postgresSchemaDialect} from "../../src/database/dialect";
+import gtfsSchema from "../../config/gtfs/schema";
 import {feedTables, testTable} from "./records";
 
 /**
@@ -86,6 +88,28 @@ describe("the postgres schema", () => {
     expect(row.field5).to.be.instanceOf(Date);
     expect(row.field6).to.equal("09:15:00");
   });
+
+  /**
+   * The GTFS tables are keyed by the specification rather than by a generated id, and a coordinate is the
+   * one value here that is signed, so character(n), unsigned and a surrogate key are all out.
+   */
+  it("creates every GTFS table, and creates them again over the top", async () => {
+    for (const [name, table] of Object.entries(gtfsSchema)) {
+      await new GTFSSchemaBuilder(db, postgresSchemaDialect, name, table).createSchema();
+      await new GTFSSchemaBuilder(db, postgresSchemaDialect, name, table).createSchema();
+    }
+
+    await db.insertInto("stops").values({
+      stop_id: "BTN", stop_code: null, stop_name: "Brighton", stop_desc: null,
+      stop_lat: 50.82895322, stop_lon: -0.141225193, zone_id: null, stop_url: null,
+      location_type: null, parent_station: null, stop_timezone: "Europe/London", wheelchair_boarding: 1
+    }).execute();
+
+    const [stop] = await db.selectFrom("stops").selectAll().execute();
+
+    // west of Greenwich, which an unsigned column would have refused
+    expect(stop.stop_lon).to.equal(-0.141225193);
+  }, 120000);
 
   it("creates every declared table", async () => {
     for (const [name, table] of feedTables()) {

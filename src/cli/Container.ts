@@ -5,13 +5,14 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import {CLICommand} from "./CLICommand";
 import {ImportFeedCommand} from "./ImportFeedCommand";
-import {DatabaseConfiguration, DatabaseConnection} from "../database/DatabaseConnection";
+import {DatabaseConfiguration} from "../database/DatabaseConnection";
 import {DialectName, dialectNames, SchemaDialect} from "../database/SchemaDialect";
 import {getSchemaDialect} from "../database/dialect";
 import {NodeSqliteDialect} from "../database/NodeSqliteDriver";
 import {Database} from "../database/Database";
 import config from "../../config";
 import schema from "../../config/schema";
+import gtfsSchema from "../../config/gtfs/schema";
 import {CleanFaresCommand} from "./CleanFaresCommand";
 import {ShowHelpCommand} from "./ShowHelpCommand";
 import {OutputGTFSCommand} from "./OutputGTFSCommand";
@@ -74,8 +75,8 @@ export class Container {
 
 
   @memoize
-  public async getCleanFaresCommand(): Promise<CLICommand> {
-    return new CleanFaresCommand(await this.getDatabaseConnection());
+  public async getCleanFaresCommand(): Promise<CleanFaresCommand> {
+    return new CleanFaresCommand(this.getKysely(), this.getSchemaDialect());
   }
 
   @memoize
@@ -84,8 +85,8 @@ export class Container {
   }
 
   @memoize
-  public getImportGTFSCommand(): Promise<GTFSImportCommand> {
-    return Promise.resolve(new GTFSImportCommand(this.databaseConfiguration));
+  public async getImportGTFSCommand(): Promise<GTFSImportCommand> {
+    return new GTFSImportCommand(this.getKysely(), this.getSchemaDialect(), gtfsSchema);
   }
 
   @memoize
@@ -108,7 +109,7 @@ export class Container {
 
   @memoize
   private async getDownloadCommand(path: string): Promise<DownloadCommand> {
-    return new DownloadCommand(await this.getDatabaseConnection(), await this.getSFTP(), path);
+    return new DownloadCommand(this.getKysely(), await this.getSFTP(), path);
   }
 
   @memoize
@@ -167,24 +168,6 @@ export class Container {
           "hmac-sha1"
         ]
       }
-    });
-  }
-
-  /**
-   * The GTFS queries and the fares clean up still speak MySQL directly, so anything that needs them fails
-   * here rather than further down with a confusing connection error. The import no longer uses this.
-   */
-  @memoize
-  public getDatabaseConnection(): DatabaseConnection {
-    const { dialect } = this.databaseConfiguration;
-
-    if (dialect !== "mysql") {
-      throw new Error(`Only the schema layer supports ${dialect}, everything else still requires mysql.`);
-    }
-
-    return driver("mysql2/promise", "mysql2").createPool({
-      ...this.driverConfiguration,
-      //debug: ['ComQueryPacket', 'RowDataPacket']
     });
   }
 

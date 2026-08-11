@@ -1,15 +1,10 @@
 import {ExpressionBuilder, Kysely} from "kysely";
 import {DialectName, getErrorCode, getErrorNumber} from "./SchemaDialect";
+import {chunks} from "./parameters";
 import {ParsedRecord, RecordAction} from "../feed/record/Record";
 
 const MYSQL_DEADLOCK = 1213;
 const POSTGRES_DEADLOCK = "40P01";
-
-/**
- * Every value in a statement is bound separately and databases cap how many. Postgres stops at 65535 and
- * SQLite at 32766, so a flush is written in chunks that stay under the smaller of the two.
- */
-const MAX_PARAMETERS = 30000;
 
 /**
  * Buffers the rows of one table and writes them out.
@@ -176,13 +171,8 @@ export class TableWriter {
   /**
    * Split the rows so that no statement binds more values than the database will take
    */
-  private *chunks(rows: ParsedRecord[]): Generator<ParsedRecord[]> {
-    const width = Math.max(1, Object.keys(rows[0]?.values ?? {}).length);
-    const size = Math.max(1, Math.floor(MAX_PARAMETERS / width));
-
-    for (let i = 0; i < rows.length; i += size) {
-      yield rows.slice(i, i + size);
-    }
+  private chunks(rows: ParsedRecord[]): Generator<ParsedRecord[]> {
+    return chunks(rows, Object.keys(rows[0]?.values ?? {}).length);
   }
 
 }

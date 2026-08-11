@@ -1,5 +1,6 @@
-import {Generated} from "kysely";
+import {Generated, Kysely} from "kysely";
 import schema from "../../config/schema";
+import fares from "../../config/schema/fares";
 import {Row} from "./Schema";
 
 /**
@@ -37,3 +38,20 @@ type Entry = {
  * the intended prompt to make them agree.
  */
 type Tables = { [N in Entry["name"]]: Row<Extract<Entry, { name: N }>["table"]> };
+
+/**
+ * The database as a command that only deals with the fares feed sees it.
+ *
+ * Because location is a union, neither feed's columns can be named through it, and the fares clean up
+ * needs the fares ones. Narrowing to a single feed's declaration is the alternative to naming those
+ * columns in raw SQL, and the declaration is still what says what they are.
+ */
+export type FaresDatabase = Omit<Database, "location"> & { location: Row<typeof fares.location> };
+
+/**
+ * Read the same connection as a fares one. The two types describe the same tables, they disagree only on
+ * which of the two location declarations is in view, so nothing about the connection changes.
+ */
+export function asFaresDatabase(db: Kysely<Database>): Kysely<FaresDatabase> {
+  return db as unknown as Kysely<FaresDatabase>;
+}

@@ -26,6 +26,7 @@ export const postgresSchemaDialect: SchemaDialect = {
       case "time": return sql.raw("time");
       // numeric would be returned as a string by pg, double precision matches both MySQL and the parsed field
       case "double": return sql.raw("double precision");
+      case "float": return sql.raw("double precision");
       case "int": return sql.raw(intType(field.length));
       case "foreignKey": return sql.raw("integer");
     }
