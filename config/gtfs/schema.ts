@@ -1,146 +1,170 @@
-export const schema = `
-DROP TABLE IF EXISTS agency;
-CREATE TABLE agency (
-  agency_id varchar(100) NOT NULL,
-  agency_name varchar(255) NOT NULL,
-  agency_url varchar(255) NOT NULL,
-  agency_timezone varchar(100) NOT NULL,
-  agency_lang varchar(100) DEFAULT NULL,
-  agency_phone varchar(100) DEFAULT NULL,
-  agency_fare_url varchar(100) DEFAULT NULL,
-  PRIMARY KEY (agency_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+import {boolean, date, float, integer, nullable, time, varchar} from "../../src/database/Schema";
+import {gtfsTable} from "../../src/database/GTFSSchema";
 
-DROP TABLE IF EXISTS calendar;
-CREATE TABLE calendar (
-  service_id smallint(12) unsigned NOT NULL,
-  monday tinyint(1) unsigned NOT NULL,
-  tuesday tinyint(1) unsigned NOT NULL,
-  wednesday tinyint(1) unsigned NOT NULL,
-  thursday tinyint(1) unsigned NOT NULL,
-  friday tinyint(1) unsigned NOT NULL,
-  saturday tinyint(1) unsigned NOT NULL,
-  sunday tinyint(1) unsigned NOT NULL,
-  start_date date NOT NULL,
-  end_date date NOT NULL,
-  PRIMARY KEY (service_id),
-  KEY start_date (start_date),
-  KEY end_date (end_date),
-  KEY monday (monday),
-  KEY tuesday (tuesday),
-  KEY wednesday (wednesday),
-  KEY thursday (thursday),
-  KEY friday (friday),
-  KEY saturday (saturday),
-  KEY sunday (sunday)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/**
+ * The tables --gtfs-import loads the GTFS files into.
+ *
+ * They hold each file as it was written, so the columns are the columns of the file and the key is the
+ * one the GTFS specification gives. Declaring them rather than writing the DDL out is what lets the same
+ * import run against MySQL, Postgres and SQLite.
+ */
+export const agency = gtfsTable({
+  agency_id: varchar(100),
+  agency_name: varchar(255),
+  agency_url: varchar(255),
+  agency_timezone: varchar(100),
+  agency_lang: nullable(varchar(100)),
+  agency_phone: nullable(varchar(100)),
+  agency_fare_url: nullable(varchar(100)),
+}, {
+  primaryKey: ["agency_id"]
+});
 
-DROP TABLE IF EXISTS calendar_dates;
-CREATE TABLE calendar_dates (
-  service_id smallint(12) unsigned NOT NULL,
-  date date NOT NULL,
-  exception_type tinyint(2) unsigned NOT NULL,
-  PRIMARY KEY (service_id, date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+export const calendar = gtfsTable({
+  service_id: integer(4),
+  monday: boolean,
+  tuesday: boolean,
+  wednesday: boolean,
+  thursday: boolean,
+  friday: boolean,
+  saturday: boolean,
+  sunday: boolean,
+  start_date: date,
+  end_date: date,
+}, {
+  primaryKey: ["service_id"],
+  indexes: [
+    "start_date", "end_date", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
+  ]
+});
 
-DROP TABLE IF EXISTS links;
-CREATE TABLE links (
-  from_stop_id varchar(100) NOT NULL,
-  to_stop_id varchar(100) NOT NULL,
-  mode VARCHAR (15) NOT NULL,
-  duration smallint(8) unsigned NOT NULL,
-  start_time time NOT NULL,
-  end_time time NOT NULL,
-  start_date date NOT NULL,
-  end_date date NOT NULL,
-  monday tinyint(1) unsigned NOT NULL,
-  tuesday tinyint(1) unsigned NOT NULL,
-  wednesday tinyint(1) unsigned NOT NULL,
-  thursday tinyint(1) unsigned NOT NULL,
-  friday tinyint(1) unsigned NOT NULL,
-  saturday tinyint(1) unsigned NOT NULL,
-  sunday tinyint(1) unsigned NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+export const calendar_dates = gtfsTable({
+  service_id: integer(4),
+  date: date,
+  exception_type: integer(2),
+}, {
+  primaryKey: ["service_id", "date"]
+});
 
-DROP TABLE IF EXISTS routes;
-CREATE TABLE routes (
-  route_id varchar(100) NOT NULL,
-  agency_id varchar(100) DEFAULT NULL,
-  route_short_name varchar(50) NOT NULL,
-  route_long_name varchar(255) NOT NULL,
-  route_type mediumint(12) unsigned NOT NULL,
-  route_text_color varchar(255) DEFAULT NULL,
-  route_color varchar(255) DEFAULT NULL,
-  route_url varchar(255) DEFAULT NULL,
-  route_desc varchar(255) DEFAULT NULL,
-  PRIMARY KEY (route_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/**
+ * Not a GTFS file. The fixed links are written to links.txt in a format of this project's own.
+ */
+export const links = gtfsTable({
+  from_stop_id: varchar(100),
+  to_stop_id: varchar(100),
+  mode: varchar(15),
+  // a number of seconds rather than a time of day
+  duration: integer(4),
+  start_time: time,
+  end_time: time,
+  start_date: date,
+  end_date: date,
+  monday: boolean,
+  tuesday: boolean,
+  wednesday: boolean,
+  thursday: boolean,
+  friday: boolean,
+  saturday: boolean,
+  sunday: boolean,
+});
 
-DROP TABLE IF EXISTS shapes;
-CREATE TABLE shapes (
-  shape_id smallint(12) unsigned NOT NULL,
-  shape_pt_lat decimal(8,6) NOT NULL,
-  shape_pt_lon decimal(8,6) NOT NULL,
-  shape_pt_sequence tinyint(3) NOT NULL,
-  shape_dist_traveled varchar(50) DEFAULT NULL,
-  PRIMARY KEY (shape_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+export const routes = gtfsTable({
+  route_id: varchar(100),
+  agency_id: nullable(varchar(100)),
+  route_short_name: varchar(50),
+  route_long_name: varchar(255),
+  route_type: integer(7),
+  route_text_color: nullable(varchar(255)),
+  route_color: nullable(varchar(255)),
+  route_url: nullable(varchar(255)),
+  route_desc: nullable(varchar(255)),
+}, {
+  primaryKey: ["route_id"]
+});
 
-DROP TABLE IF EXISTS stop_times;
-CREATE TABLE stop_times (
-  trip_id mediumint(12) unsigned NOT NULL,
-  arrival_time time DEFAULT NULL,
-  departure_time time DEFAULT NULL,
-  stop_id varchar(100) NOT NULL,
-  stop_sequence tinyint(1) unsigned NOT NULL,
-  stop_headsign varchar(50) DEFAULT NULL,
-  pickup_type tinyint(1) unsigned DEFAULT NULL,
-  drop_off_type tinyint(1) unsigned DEFAULT NULL,
-  shape_dist_traveled varchar(50) DEFAULT NULL,
-  timepoint tinyint(1) unsigned DEFAULT NULL,
-  PRIMARY KEY (trip_id, stop_sequence),
-  KEY arrival_time (arrival_time),
-  KEY departure_time (departure_time),
-  KEY stop_id (stop_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/**
+ * Nothing writes shapes.txt, so this is only ever created empty. It is kept because dropping a table
+ * someone may be reading from is not this change's to make.
+ */
+export const shapes = gtfsTable({
+  shape_id: integer(4),
+  // a coordinate is signed, so it cannot be one of the feed's unsigned doubles
+  shape_pt_lat: float,
+  shape_pt_lon: float,
+  shape_pt_sequence: integer(3),
+  shape_dist_traveled: nullable(varchar(50)),
+}, {
+  primaryKey: ["shape_id"]
+});
 
-DROP TABLE IF EXISTS stops;
-CREATE TABLE stops (
-  stop_id varchar(100) NOT NULL,
-  stop_code varchar(50) DEFAULT NULL,
-  stop_name varchar(255) NOT NULL,
-  stop_desc varchar(255) DEFAULT NULL,
-  stop_lat double DEFAULT NULL,
-  stop_lon double DEFAULT NULL,
-  zone_id varchar(255) DEFAULT NULL,
-  stop_url varchar(255) DEFAULT NULL,
-  location_type varchar(2) DEFAULT NULL,
-  parent_station varchar(100) DEFAULT NULL,
-  stop_timezone varchar(50) DEFAULT NULL,
-  wheelchair_boarding tinyint(1) unsigned DEFAULT NULL,
-  PRIMARY KEY (stop_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+export const stop_times = gtfsTable({
+  trip_id: integer(7),
+  // GTFS counts from noon minus twelve hours and writes 25:30:00 for half past one the next morning.
+  // MySQL's time type happens to hold that, Postgres tops out at 24:00:00, so the value is kept as the
+  // text it is in the file rather than being called a time of day.
+  arrival_time: nullable(varchar(8)),
+  departure_time: nullable(varchar(8)),
+  stop_id: varchar(100),
+  stop_sequence: integer(2),
+  stop_headsign: nullable(varchar(50)),
+  pickup_type: nullable(integer(2)),
+  drop_off_type: nullable(integer(2)),
+  shape_dist_traveled: nullable(varchar(50)),
+  timepoint: nullable(integer(2)),
+}, {
+  primaryKey: ["trip_id", "stop_sequence"],
+  indexes: ["arrival_time", "departure_time", "stop_id"]
+});
 
-DROP TABLE IF EXISTS transfers;
-CREATE TABLE transfers (
-  from_stop_id varchar(100) NOT NULL,
-  to_stop_id varchar(100) NOT NULL,
-  transfer_type tinyint(1) unsigned NOT NULL,
-  min_transfer_time smallint(8) unsigned NOT NULL,
-  PRIMARY KEY (from_stop_id, to_stop_id, transfer_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+export const stops = gtfsTable({
+  stop_id: varchar(100),
+  stop_code: nullable(varchar(50)),
+  stop_name: varchar(255),
+  stop_desc: nullable(varchar(255)),
+  stop_lat: nullable(float),
+  stop_lon: nullable(float),
+  zone_id: nullable(varchar(255)),
+  stop_url: nullable(varchar(255)),
+  location_type: nullable(varchar(2)),
+  parent_station: nullable(varchar(100)),
+  stop_timezone: nullable(varchar(50)),
+  wheelchair_boarding: nullable(integer(2)),
+}, {
+  primaryKey: ["stop_id"]
+});
 
-DROP TABLE IF EXISTS trips;
-CREATE TABLE trips (
-  route_id varchar(255) NOT NULL,
-  service_id smallint(12) unsigned NOT NULL,
-  trip_id mediumint(12) unsigned NOT NULL,
-  trip_headsign varchar(50) DEFAULT NULL,
-  trip_short_name varchar(50) DEFAULT NULL,
-  direction_id tinyint(1) unsigned DEFAULT NULL,
-  wheelchair_accessible tinyint(1) unsigned DEFAULT NULL,
-  bikes_allowed tinyint(1) unsigned DEFAULT NULL,
-  PRIMARY KEY (trip_id),
-  KEY service_id (service_id),
-  KEY trip (trip_headsign)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+export const transfers = gtfsTable({
+  from_stop_id: varchar(100),
+  to_stop_id: varchar(100),
+  transfer_type: integer(2),
+  min_transfer_time: integer(4),
+}, {
+  primaryKey: ["from_stop_id", "to_stop_id", "transfer_type"]
+});
+
+export const trips = gtfsTable({
+  route_id: varchar(255),
+  service_id: integer(4),
+  trip_id: integer(7),
+  trip_headsign: nullable(varchar(50)),
+  trip_short_name: nullable(varchar(50)),
+  direction_id: nullable(boolean),
+  wheelchair_accessible: nullable(integer(2)),
+  bikes_allowed: nullable(integer(2)),
+}, {
+  primaryKey: ["trip_id"],
+  indexes: ["service_id", "trip_headsign"]
+});
+
+export default {
+  agency,
+  calendar,
+  calendar_dates,
+  links,
+  routes,
+  shapes,
+  stop_times,
+  stops,
+  transfers,
+  trips
+};

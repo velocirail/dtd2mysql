@@ -6,7 +6,16 @@ An import tool for the British rail fares, routeing and timetable feeds into a d
 
 Although both the timetable and fares feed are open data you will need to obtain the fares feed via the [ATOC website](http://data.atoc.org/fares-data). The formal specification for the data inside the feed also available on the [ATOC website](http://data.atoc.org/sites/all/themes/atoc/files/SP0035.pdf).
 
-At the moment only MySQL compatible databases are supported but it could be extended to support other data stores. PRs are very welcome.
+Every command runs against MySQL, Postgres and SQLite, chosen with `DATABASE_DIALECT` and defaulting to
+MySQL. The database driver is yours to choose, so install the one you need alongside this:
+
+| database | install |
+| --- | --- |
+| MySQL | `mysql2` |
+| Postgres | `pg`, and `pg-cursor` as well if you want the GTFS output, which streams |
+| SQLite | nothing, it is built into node |
+
+`DATABASE_PORT` defaults to 3306, so Postgres needs it setting to 5432.
 
 ## Requirements
 
@@ -34,7 +43,7 @@ dtd2mysql --fares /path/to/RJFAFxxx.ZIP
 ```
 ### Clean 
 
-Removes expired data and invalid fares, corrects railcard passenger quantities, adds full date entries to restriction date records. This command will occasionally fail due to a MySQL timeout (depending on hardware), re-running the command should correct the problem.
+Removes expired data and invalid fares, corrects railcard passenger quantities, adds full date entries to restriction date records. It also records which restriction applies to each origin, destination and route in `network_flow_restriction`.
 
 ```
 dtd2mysql --fares-clean
@@ -55,6 +64,16 @@ Convert the DTD/TTIS version of the timetable (up to 3 months into the future) t
 ```
 dtd2mysql --timetable /path/to/RJTTFxxx.ZIP
 dtd2mysql --gtfs-zip filename-of-gtfs.zip
+```
+
+### Load GTFS back into the database
+
+Reads the GTFS files in a directory into a table per file, replacing whatever is already there. The
+tables are named after the files, so `stops.txt` becomes `stops`.
+
+```
+dtd2mysql --gtfs /path/to/output/
+dtd2mysql --gtfs-import /path/to/output/
 ```
 
 ## Routeing Guide
@@ -124,6 +143,24 @@ git clone git@github.com:planarnetwork/dtd2mysql
 npm install --dev
 npm test
 ```
+
+There is also an integration test that imports every feed and compares every row it writes against
+`test/integration/expected`. It needs a database, so it is run separately:
+
+```
+docker compose up -d
+npm run test:integration
+```
+
+It runs against MySQL by default. Set `DATABASE_DIALECT` to `postgres`, or to `sqlite` with
+`DATABASE_NAME` pointing at a file, to run the same tests against the same recorded rows on those
+instead. Every database is expected to produce the same rows, so one that needs its own expectations is
+a bug rather than something to record.
+
+The timetable fixture is hand written and realistic. The fares, routeing and nfm64 fixtures are derived
+from the feed definitions by `npm run fixture:generate`, which is only needed when a record definition
+changes. The expected rows are updated deliberately with `npm run test:integration -- -u`, and a change
+to them should be explained rather than accepted.
 
 If you would like to send a pull request please write your contribution in TypeScript and if possible, add a test.
 

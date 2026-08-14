@@ -1,12 +1,8 @@
 
-export interface DatabaseConnection {
-  getConnection(): Promise<DatabaseConnection>;
-  query<RowType = unknown>(sql: any, parameters?: any[]): Promise<[RowType[], any]>;
-  end(): Promise<void>;
-  release(): Promise<void>;
-}
+import {DialectName} from "./SchemaDialect";
 
 export interface DatabaseConfiguration {
+  dialect: DialectName,
   host: string,
   user: string,
   password: string | null,

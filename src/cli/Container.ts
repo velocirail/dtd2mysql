@@ -1,11 +1,18 @@
 import memoize from "memoized-class-decorator";
+import {Kysely, MysqlDialect, PostgresDialect} from "kysely";
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import {CLICommand} from "./CLICommand";
 import {ImportFeedCommand} from "./ImportFeedCommand";
-import {DatabaseConfiguration, DatabaseConnection} from "../database/DatabaseConnection";
+import {DatabaseConfiguration} from "../database/DatabaseConnection";
+import {DialectName, dialectNames, SchemaDialect} from "../database/SchemaDialect";
+import {getSchemaDialect} from "../database/dialect";
+import {NodeSqliteDialect} from "../database/NodeSqliteDriver";
+import {Database} from "../database/Database";
 import config from "../../config";
+import schema from "../../config/schema";
+import gtfsSchema from "../../config/gtfs/schema";
 import {CleanFaresCommand} from "./CleanFaresCommand";
 import {ShowHelpCommand} from "./ShowHelpCommand";
 import {OutputGTFSCommand} from "./OutputGTFSCommand";
@@ -48,28 +55,28 @@ export class Container {
 
   @memoize
   public async getFaresImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.fares, schema.fares, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getRouteingImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.routeing, schema.routeing, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getTimetableImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.timetable, schema.timetable, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
   @memoize
   public async getNFM64ImportCommand(): Promise<ImportFeedCommand> {
-    return new ImportFeedCommand(await this.getDatabaseConnection(), config.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
+    return new ImportFeedCommand(this.getKysely(), this.getSchemaDialect(), config.nfm64, schema.nfm64, fs.mkdtempSync(path.join(os.tmpdir(), "dtd")));
   }
 
 
   @memoize
-  public async getCleanFaresCommand(): Promise<CLICommand> {
-    return new CleanFaresCommand(await this.getDatabaseConnection());
+  public async getCleanFaresCommand(): Promise<CleanFaresCommand> {
+    return new CleanFaresCommand(this.getKysely(), this.getSchemaDialect());
   }
 
   @memoize
@@ -78,18 +85,14 @@ export class Container {
   }
 
   @memoize
-  public getImportGTFSCommand(): Promise<GTFSImportCommand> {
-    return Promise.resolve(new GTFSImportCommand(this.databaseConfiguration));
+  public async getImportGTFSCommand(): Promise<GTFSImportCommand> {
+    return new GTFSImportCommand(this.getKysely(), this.getSchemaDialect(), gtfsSchema);
   }
 
   @memoize
   private getOutputGTFSCommandWithOutput(output: GTFSOutput): OutputGTFSCommand {
     return new OutputGTFSCommand(
-      new CIFRepository(
-        this.getDatabaseConnection(),
-        this.getDatabaseStream(),
-        stationCoordinates
-      ),
+      new CIFRepository(this.getKysely(), stationCoordinates),
       output
     );
   }
@@ -106,7 +109,7 @@ export class Container {
 
   @memoize
   private async getDownloadCommand(path: string): Promise<DownloadCommand> {
-    return new DownloadCommand(await this.getDatabaseConnection(), await this.getSFTP(), path);
+    return new DownloadCommand(this.getKysely(), await this.getSFTP(), path);
   }
 
   @memoize
@@ -169,16 +172,65 @@ export class Container {
   }
 
   @memoize
-  public getDatabaseConnection(): DatabaseConnection {
-    return require('mysql2/promise').createPool({
-      ...this.databaseConfiguration,
-      //debug: ['ComQueryPacket', 'RowDataPacket']
-    });
+  public getDatabaseStream() {
+    return driver("mysql2", "mysql2").createPool(this.driverConfiguration);
   }
 
   @memoize
-  public getDatabaseStream() {
-    return require('mysql2').createPool(this.databaseConfiguration);
+  public getSchemaDialect(): SchemaDialect {
+    return getSchemaDialect(this.databaseConfiguration.dialect);
+  }
+
+  /**
+   * The schema layer talks to the database through Kysely so that it can target more than just MySQL.
+   *
+   * MySQL shares the streaming pool rather than opening a third one.
+   */
+  @memoize
+  public getKysely(): Kysely<Database> {
+    const configuration = this.databaseConfiguration;
+
+    switch (configuration.dialect) {
+      case "mysql":
+        return new Kysely({ dialect: new MysqlDialect({ pool: this.getDatabaseStream() }) });
+      case "sqlite":
+        return new Kysely({ dialect: new NodeSqliteDialect(configuration.database) });
+      case "postgres":
+        return new Kysely({
+          dialect: new PostgresDialect({
+            pool: this.getPostgresPool(),
+            // only the GTFS output streams, so this stays optional and importing works without it
+            cursor: optionalDriver("pg-cursor")
+          })
+        });
+    }
+  }
+
+  /**
+   * Postgres hands back date and timestamp columns as Date objects built in the local timezone, which is
+   * exactly what dateStrings avoids on MySQL. The parsers leave them as the strings everything else here
+   * expects, so reading a date does not depend on the machine doing the reading.
+   */
+  @memoize
+  private getPostgresPool() {
+    const pg = driver("pg", "pg");
+    const { host, user, password, database, port, connectionLimit } = this.databaseConfiguration;
+
+    pg.types.setTypeParser(pg.types.builtins.DATE, (value: string) => value);
+    pg.types.setTypeParser(pg.types.builtins.TIMESTAMP, (value: string) => value);
+
+    return new pg.Pool({
+      host, user, database, port, max: connectionLimit, password: password ?? undefined
+    });
+  }
+
+  /**
+   * The database configuration without the fields that mysql2 does not understand
+   */
+  private get driverConfiguration() {
+    const { dialect, ...configuration } = this.databaseConfiguration;
+
+    return configuration;
   }
 
   public get databaseConfiguration(): DatabaseConfiguration {
@@ -187,6 +239,7 @@ export class Container {
     }
 
     return {
+      dialect: getDialectName(),
       host: process.env.DATABASE_HOSTNAME || "localhost",
       user: process.env.DATABASE_USERNAME || "root",
       password: process.env.DATABASE_PASSWORD || null,
@@ -200,4 +253,44 @@ export class Container {
     };
   }
 
+}
+
+/**
+ * Load a database driver.
+ *
+ * The drivers are optional peer dependencies, so that installing this does not drag in one for every
+ * database it can talk to. SQLite needs nothing, it is built into node.
+ */
+function driver(module: string, install: string) {
+  try {
+    return require(module);
+  }
+  catch {
+    throw new Error(`The ${install} package is needed for this database but is not installed. Run npm install ${install}.`);
+  }
+}
+
+/**
+ * Load a driver that is only needed for some of the work, returning nothing if it is not installed
+ */
+function optionalDriver(module: string) {
+  try {
+    return require(module);
+  }
+  catch {
+    return undefined;
+  }
+}
+
+/**
+ * The database the CLI is pointed at, defaulting to MySQL for backwards compatibility
+ */
+function getDialectName(): DialectName {
+  const name = process.env.DATABASE_DIALECT || "mysql";
+
+  if (!dialectNames.includes(name as DialectName)) {
+    throw new Error(`Unknown DATABASE_DIALECT "${name}", expected one of ${dialectNames.join(", ")}.`);
+  }
+
+  return name as DialectName;
 }

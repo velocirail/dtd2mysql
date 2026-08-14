@@ -1,0 +1,263 @@
+{
+  "transfers": [
+    {
+      "from_stop_id": "BTN",
+      "to_stop_id": "BTN",
+      "transfer_type": 2,
+      "min_transfer_time": 300
+    },
+    {
+      "from_stop_id": "CLJ",
+      "to_stop_id": "CLJ",
+      "transfer_type": 2,
+      "min_transfer_time": 420
+    },
+    {
+      "from_stop_id": "VIC",
+      "to_stop_id": "VIC",
+      "transfer_type": 2,
+      "min_transfer_time": 600
+    }
+  ],
+  "stops": [
+    {
+      "stop_id": "0/1",
+      "stop_code": "PEC=05",
+      "stop_name": "                         F",
+      "stop_desc": null,
+      "zone_id": null,
+      "stop_url": null,
+      "location_type": null,
+      "parent_station": null,
+      "stop_timezone": "Europe/London",
+      "wheelchair_boarding": 0,
+      "stop_lon": -14.514379813982144,
+      "stop_lat": -4.16493366695202
+    },
+    {
+      "stop_id": "BTN",
+      "stop_code": "BTN",
+      "stop_name": "Brighton",
+      "stop_desc": 0,
+      "zone_id": null,
+      "stop_url": null,
+      "location_type": null,
+      "parent_station": null,
+      "stop_timezone": "Europe/London",
+      "wheelchair_boarding": 1,
+      "stop_lon": -0.141225193,
+      "stop_lat": 50.82895322
+    },
+    {
+      "stop_id": "CLJ",
+      "stop_code": "CLPHMJC",
+      "stop_name": "Clapham Junction",
+      "stop_desc": 0,
+      "zone_id": null,
+      "stop_url": null,
+      "location_type": null,
+      "parent_station": null,
+      "stop_timezone": "Europe/London",
+      "wheelchair_boarding": 1,
+      "stop_lon": -0.170247351,
+      "stop_lat": 51.46419065
+    },
+    {
+      "stop_id": "VIC",
+      "stop_code": "VICTRIC",
+      "stop_name": "London Victoria",
+      "stop_desc": 0,
+      "zone_id": null,
+      "stop_url": null,
+      "location_type": null,
+      "parent_station": null,
+      "stop_timezone": "Europe/London",
+      "wheelchair_boarding": 1,
+      "stop_lon": -0.144540593,
+      "stop_lat": 51.49526139
+    }
+  ],
+  "associations": [
+    {
+      "id": 1,
+      "baseTUID": "C00001",
+      "assocTUID": "C00002",
+      "assocLocation": "CLJ",
+      "dateIndicator": "S",
+      "assocType": "JJ",
+      "calendar": {
+        "runsFrom": "2025-06-01",
+        "runsTo": "2025-12-13",
+        "days": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 0
+        },
+        "excludeDays": {}
+      },
+      "stp": "P"
+    },
+    {
+      "id": 2,
+      "baseTUID": "C00002",
+      "assocTUID": "C00001",
+      "assocLocation": "VIC",
+      "dateIndicator": "S",
+      "assocType": "VV",
+      "calendar": {
+        "runsFrom": "2025-06-01",
+        "runsTo": "2025-12-13",
+        "days": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 0
+        },
+        "excludeDays": {}
+      },
+      "stp": "P"
+    }
+  ],
+  "fixedLinks": [
+    {
+      "from_stop_id": "BTN",
+      "to_stop_id": "CLJ",
+      "mode": "TRANSFER",
+      "duration": 1500,
+      "start_time": "00:01:00",
+      "end_time": "23:59:00",
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0
+    },
+    {
+      "from_stop_id": "CLJ",
+      "to_stop_id": "BTN",
+      "mode": "TRANSFER",
+      "duration": 1500,
+      "start_time": "00:01:00",
+      "end_time": "23:59:00",
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0
+    },
+    {
+      "from_stop_id": "CLJ",
+      "to_stop_id": "VIC",
+      "mode": "BUS",
+      "duration": 900,
+      "start_time": "06:00:00",
+      "end_time": "23:00:00",
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 1,
+      "sunday": 1
+    },
+    {
+      "from_stop_id": "VIC",
+      "to_stop_id": "CLJ",
+      "mode": "BUS",
+      "duration": 900,
+      "start_time": "06:00:00",
+      "end_time": "23:00:00",
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 1,
+      "sunday": 1
+    }
+  ],
+  "schedules": [
+    {
+      "id": 1,
+      "tuid": "C00001",
+      "rsid": "SN123400",
+      "stp": "P",
+      "mode": 2,
+      "operator": "SN",
+      "calendar": "2025-06-01 to 2025-12-13",
+      "stops": [
+        [
+          "CLJ",
+          "10:45:00",
+          "10:46:00"
+        ],
+        [
+          "VIC",
+          "11:05:00",
+          "11:05:00"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "tuid": "C00002",
+      "rsid": "SN123500",
+      "stp": "P",
+      "mode": 2,
+      "operator": "SN",
+      "calendar": "2025-06-01 to 2025-12-13",
+      "stops": [
+        [
+          "VIC",
+          "11:30:00",
+          "11:30:00"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "tuid": "Z00001",
+      "rsid": null,
+      "stp": "P",
+      "mode": 2,
+      "operator": "SN",
+      "calendar": "2025-06-01 to 2025-12-13",
+      "stops": [
+        [
+          "BTN",
+          "09:00:00",
+          "09:00:00"
+        ],
+        [
+          "CLJ",
+          "09:45:00",
+          "09:46:00"
+        ],
+        [
+          "VIC",
+          "10:05:00",
+          "10:05:00"
+        ]
+      ]
+    }
+  ]
+}

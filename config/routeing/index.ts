@@ -15,7 +15,7 @@ import RGE from "./file/RGE";
 import RGY from "./file/RGY";
 import RGN from "./file/RGN";
 
-const specification: FeedConfig = {
+const specification = {
   RGS: RGS,
   RGG: RGG,
   RGP: RGP,
@@ -31,6 +31,6 @@ const specification: FeedConfig = {
   RGE: RGE,
   RGY: RGY,
   RGN: RGN
-};
+} satisfies FeedConfig;
 
 export default specification;

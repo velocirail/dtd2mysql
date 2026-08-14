@@ -1,20 +1,24 @@
 import {CLICommand} from "./CLICommand";
+import {FileProvider} from "./DownloadAndProcessCommand";
 
 import * as http from "http";
 import * as fs from "fs";
 
 
-export class DownloadFileCommand implements CLICommand {
+export class DownloadFileCommand implements CLICommand, FileProvider {
 
   constructor(private readonly url: string) {}
+
+  public run(argv: string[]): Promise<string[]> {
+    return this.download(argv[3] || "/tmp/");
+  }
 
   /**
    * Download the file from a HTTP server
    */
-  public async run(argv: string[]): Promise<string[]> {
+  public async download(outputDirectory: string): Promise<string[]> {
     console.log(`Downloading ${this.url}...`);
 
-    const outputDirectory = argv[3] || "/tmp/";
     const filename = outputDirectory + "nfm64.zip";
 
     return new Promise<string[]>((resolve, reject) => {
