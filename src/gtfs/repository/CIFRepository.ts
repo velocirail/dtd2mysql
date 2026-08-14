@@ -11,6 +11,7 @@ import {ScheduleBuilder, ScheduleResults} from "./ScheduleBuilder";
 import {RouteType} from "../file/Route";
 import {Duration} from "../native/Duration";
 import {FixedLink} from "../file/FixedLink";
+import {FeedValidity} from "../command/CreateFeedInfo";
 
 /**
  * Provide access to the CIF/TTIS data in a vaguely GTFS-ish shape.
@@ -128,6 +129,26 @@ export class CIFRepository {
     ]);
 
     return scheduleBuilder.results;
+  }
+
+  /**
+   * Return the window the exported feed is complete over.
+   *
+   * The end date is the same cutoff getSchedules applies, evaluated by MySQL against the same
+   * expression so the two cannot drift apart.
+   *
+   * The argument range is a mysql expression like '3 MONTH'.
+   *   It is NOT SANITIZED so it cannot be untrusted user input.
+   */
+  public async getFeedValidity(range: string): Promise<FeedValidity> {
+    const [[row]] = await this.db.query<{ feed_start_date: string, feed_end_date: string }>(`
+      SELECT CURDATE() AS feed_start_date, CURDATE() + INTERVAL ${range} AS feed_end_date
+    `);
+
+    return {
+      from: Temporal.PlainDate.from(row.feed_start_date),
+      to: Temporal.PlainDate.from(row.feed_end_date)
+    };
   }
 
   /**

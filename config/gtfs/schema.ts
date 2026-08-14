@@ -140,7 +140,19 @@ CREATE TABLE trips (
   direction_id tinyint(1) unsigned DEFAULT NULL,
   wheelchair_accessible tinyint(1) unsigned DEFAULT NULL,
   bikes_allowed tinyint(1) unsigned DEFAULT NULL,
+  train_uid varchar(50) DEFAULT NULL,
   PRIMARY KEY (trip_id),
   KEY service_id (service_id),
-  KEY trip (trip_headsign)
+  KEY trip (trip_headsign),
+  KEY train_uid (train_uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS feed_info;
+CREATE TABLE feed_info (
+  feed_publisher_name varchar(255) NOT NULL,
+  feed_publisher_url varchar(255) NOT NULL,
+  feed_lang varchar(100) NOT NULL,
+  feed_start_date date DEFAULT NULL,
+  feed_end_date date DEFAULT NULL,
+  feed_version varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;

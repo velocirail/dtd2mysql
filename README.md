@@ -115,6 +115,29 @@ The timetable data does not map to a relational database in a very logical fashi
 Only schedule records that **start** up to 3 months into the future (using date of import as a reference point) are exported to GTFS for performance reasons.
 This will cause any data after that point to be either incomplete or incorrect, as override/cancellation records after that will be ignored as well.
 
+This cutoff is published in `feed_info.txt` as `feed_end_date`, so consumers can see where the feed stops being reliable instead of having to know about it.
+
+### feed_info.txt
+
+The GTFS export writes a `feed_info.txt` describing the export itself:
+
+- `feed_start_date` / `feed_end_date` — the window the feed is complete over. The end date is the schedule cutoff described above, evaluated from the same expression the schedule query uses, so the two cannot disagree.
+- `feed_version` — the time the export was generated, to the second, in UTC (e.g. `2026-08-14T09:05:03Z`). The DTD feed carries no version of its own, so generation time is the most specific identifier available. Anything published against a particular export — a real-time feed, for instance — can use it to assert both were built from the same data.
+- `feed_publisher_name` / `feed_publisher_url` — whoever is running the export, which the DTD feed cannot know. Set them with the `GTFS_FEED_PUBLISHER_NAME` and `GTFS_FEED_PUBLISHER_URL` environment variables; they default to identifying dtd2mysql itself.
+
+### train_uid in trips.txt
+
+`trips.txt` carries an extra, non-standard `train_uid` column holding the CIF train UID the trip came
+from. Consumers that do not know the column ignore it.
+
+`trip_id` is a surrogate with no meaning outside a single export, so the UID is the only handle
+anything upstream of the DTD feed has on a trip. It matters most to real-time feeds: Darwin keys its
+messages on the CIF UID, not on any GTFS identifier, so re-attaching a live update to a trip in here
+means resolving `(train_uid, service date) -> trip_id` first.
+
+For services formed by joining or splitting others the value is the composite UID the association
+produced, e.g. `C12345_C67890`, rather than a single CIF UID.
+
 ## Contributing
 
 Issues and PRs are very welcome. To get the project set up run

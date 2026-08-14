@@ -12,6 +12,7 @@ import {GTFSOutput} from "../gtfs/output/GTFSOutput";
 import {Route} from "../gtfs/file/Route";
 import * as fs from "fs";
 import {addLateNightServices} from "../gtfs/command/AddLateNightServices";
+import {createFeedInfo, feedPublisher} from "../gtfs/command/CreateFeedInfo";
 import {finished} from "node:stream/promises";
 
 export class OutputGTFSCommand implements CLICommand {
@@ -43,6 +44,7 @@ export class OutputGTFSCommand implements CLICommand {
     const stopsP = this.copy(this.repository.getStops(), "stops.txt");
     const agencyP = this.copy(agencies, "agency.txt");
     const fixedLinksP = this.copy(this.repository.getFixedLinks(), "links.txt");
+    const feedInfoP = this.copyFeedInfo(range);
 
     const schedules = this.getSchedules(await associationsP, await scheduleResultsP);
     const [calendars, calendarDates, serviceIds] = createCalendar(schedules);
@@ -59,9 +61,20 @@ export class OutputGTFSCommand implements CLICommand {
       calendarDatesP,
       tripsP,
       fixedLinksP,
+      feedInfoP,
       this.repository.end(),
       this.output.end()
     ]);
+  }
+
+  /**
+   * Write the single feed_info.txt record describing this export
+   */
+  private async copyFeedInfo(range: string): Promise<void> {
+    const validity = await this.repository.getFeedValidity(range);
+    const info = createFeedInfo(validity, feedPublisher(process.env), Temporal.Now.instant());
+
+    return this.copy([info], "feed_info.txt");
   }
 
   /**
