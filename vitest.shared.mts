@@ -10,7 +10,10 @@ export function project(name: string) {
       name,
       // .mts for a test that needs import.meta, which a package emitting
       // CommonJS cannot use in a .ts file
-      include: ["src/**/*.spec.ts", "src/**/*.spec.mts"]
+      include: ["src/**/*.spec.ts", "src/**/*.spec.mts"],
+      // the integration suite needs a database, so it is a separate run - see
+      // vitest.integration.config.mts
+      exclude: ["src/integration/**"]
     }
   });
 }
