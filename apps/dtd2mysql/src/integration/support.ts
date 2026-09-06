@@ -4,7 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import {Kysely} from "kysely";
 import {FeedConfig} from "@gb-transit/dtd-schema";
-import {FeedSchema, Row, Table} from "../database/Schema";
+import {FeedSchema} from "../database/Schema";
 import {ImportFeedCommand} from "../cli/ImportFeedCommand";
 import {kysely, schemaDialect} from "../container";
 
@@ -12,7 +12,7 @@ import {kysely, schemaDialect} from "../container";
  * Which database the suite runs against. MySQL is the default because that is what the recorded rows
  * were taken from, and every dialect is compared against the same ones.
  */
-export const dialect = process.env.DATABASE_DIALECT ?? "mysql";
+const dialect = process.env.DATABASE_DIALECT ?? "mysql";
 
 // docker-compose.yml and the CI services both provide this database; sqlite just needs somewhere to live
 process.env.DATABASE_NAME ??= dialect === "sqlite"
@@ -115,39 +115,6 @@ function cell(value: unknown): string {
 
   return String(value).replace(/\\/g, "\\\\").replace(/\t/g, "\\t").replace(/\n/g, "\\n");
 }
-
-/**
- * A row of the given table, carrying the given values and something acceptable everywhere else.
- *
- * A fares table is forty columns wide and a test that spells all of them out says nothing about which of
- * them it is actually about. The declaration already says what each column holds, so the rest are filled
- * from it and the test names only the values it is making a point with.
- */
-export function rowOf<T extends Table>(table: T, values: Partial<Values<T>>): Values<T> {
-  const row: {[column: string]: unknown} = {};
-
-  for (const [name, column] of Object.entries(table.columns)) {
-    // a column that can be empty is left empty, so a value in a recorded row was put there on purpose
-    if (column.nullable) {
-      row[name] = null;
-      continue;
-    }
-
-    switch (column.type.type) {
-      case "int": case "boolean": case "double": case "float": case "foreignKey": row[name] = 0; break;
-      case "date": row[name] = "2000-01-01"; break;
-      case "time": row[name] = "00:00:00"; break;
-      default: row[name] = "";
-    }
-  }
-
-  return {...row, ...values} as Values<T>;
-}
-
-/**
- * The columns of a table without the id the database generates
- */
-type Values<T extends Table> = Omit<Row<T>, "id">;
 
 /**
  * The most recent file the import recorded, which is appended to rather than reset
