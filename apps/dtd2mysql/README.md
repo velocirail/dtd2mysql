@@ -31,7 +31,7 @@ Every command reads its database settings from the environment. For example
 | `DATABASE_DIALECT` | `mysql`, `postgres` or `sqlite`. Defaults to `mysql` |
 | `DATABASE_NAME` | the database, or the file to use for SQLite |
 | `DATABASE_HOSTNAME` | defaults to `localhost` |
-| `DATABASE_PORT` | defaults to `3306` |
+| `DATABASE_PORT` | defaults to `3306`, or `5432` for Postgres |
 | `DATABASE_USERNAME` | defaults to `root` |
 | `DATABASE_PASSWORD` | |
 
