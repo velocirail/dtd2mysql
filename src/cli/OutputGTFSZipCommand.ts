@@ -26,12 +26,9 @@ export class OutputGTFSZipCommand implements CLICommand {
 
     await this.command.run(argv);
 
-    // when node tells you it's finished writing a file, it's lying.
-    setTimeout(() => {
-      console.log("Writing " + filename);
-      processSpawnResult(spawnSync('zip', ['-jr', filename, argv[3]]));
-      fs.rmSync(argv[3], {recursive: true});
-    }, 1000);
+    console.log("Writing " + filename);
+    processSpawnResult(spawnSync('zip', ['-jr', filename, argv[3]]));
+    fs.rmSync(argv[3], {recursive: true});
   }
 
 }

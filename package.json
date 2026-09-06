@@ -13,11 +13,14 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "fixture:generate": "tsx test/integration/generateFixtures.ts",
     "watch-test": "vitest",
     "start": "tsx ./src/index.ts",
     "prepublishOnly": "tsc -p ./ --outDir dist/",
     "gtfs": "tsx ./src/index.ts --gtfs",
-    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip"
+    "gtfs-zip": "tsx ./src/index.ts --gtfs-zip",
+    "typecheck": "tsc -p ./tsconfig.test.json"
   },
   "repository": {
     "type": "git",
@@ -45,17 +48,38 @@
     "adm-zip": "0.6.0",
     "byline": "5.0.0",
     "csv-write-stream": "2.0.0",
+    "kysely": "0.29.4",
     "memoized-class-decorator": "1.6.1",
-    "mysql2": "3.23.0",
     "proj4": "2.20.9",
     "ssh2": "1.17.0"
   },
+  "peerDependencies": {
+    "mysql2": ">=3",
+    "pg": ">=8",
+    "pg-cursor": ">=2"
+  },
+  "peerDependenciesMeta": {
+    "mysql2": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "pg-cursor": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "@types/adm-zip": "0.5.8",
     "@types/byline": "4.2.36",
     "@types/csv-write-stream": "2.0.3",
     "@types/node": "26.1.1",
+    "@types/pg": "^8.20.4",
     "@types/ssh2": "1.15.5",
+    "mysql2": "3.23.0",
+    "pg": "^8.22.0",
+    "pg-cursor": "^2.21.0",
     "tsx": "4.23.1",
     "typescript": "7.0.2",
     "vitest": "^4.1.10"

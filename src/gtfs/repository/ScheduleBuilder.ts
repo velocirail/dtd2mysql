@@ -21,13 +21,12 @@ export class ScheduleBuilder {
   /**
    * Take a stream of ScheduleStopTimeRow, turn them into Schedule objects and add the result to the schedules
    */
-  public loadSchedules(results: any): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public async loadSchedules(results: AsyncIterable<ScheduleStopTimeRow>): Promise<void> {
       let stops: StopTime[] = [];
-      let prevRow: ScheduleStopTimeRow;
+      let prevRow: ScheduleStopTimeRow | undefined;
       let departureHour = 4;
 
-      results.on("result", (row: ScheduleStopTimeRow) => {
+      for await (const row of results) {
         if (prevRow && prevRow.id !== row.id) {
           this.schedules.push(this.createSchedule(prevRow, stops));
           stops = [];
@@ -51,17 +50,11 @@ export class ScheduleBuilder {
         }
 
         prevRow = row;
-      });
+      }
 
-      results.on("end", () => {
-        if (prevRow) {
-          this.schedules.push(this.createSchedule(prevRow, stops));
-        }
-
-        resolve();
-      });
-      results.on("error", reject);
-    });
+      if (prevRow) {
+        this.schedules.push(this.createSchedule(prevRow, stops));
+      }
   }
 
   private createSchedule(row: ScheduleStopTimeRow, stops: StopTime[]): Schedule {

@@ -1,0 +1,400 @@
+{
+  "additional_fixed_link": [
+    {
+      "id": 1,
+      "mode": "TRANSFER",
+      "origin": "BTN",
+      "destination": "CLJ",
+      "duration": 25,
+      "start_time": "00:01:00",
+      "end_time": "23:59:00",
+      "priority": 6,
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0
+    },
+    {
+      "id": 2,
+      "mode": "BUS",
+      "origin": "CLJ",
+      "destination": "VIC",
+      "duration": 15,
+      "start_time": "06:00:00",
+      "end_time": "23:00:00",
+      "priority": 3,
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 0,
+      "saturday": 1,
+      "sunday": 1
+    }
+  ],
+  "alias": [
+    {
+      "id": 1,
+      "station_name": "BRIGHTON",
+      "station_alias": "BRIGHTON (SUSSEX)"
+    }
+  ],
+  "association": [
+    {
+      "id": 3,
+      "base_uid": "C00001",
+      "assoc_uid": "C00002",
+      "start_date": "2025-06-01",
+      "end_date": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 0,
+      "saturday": 0,
+      "sunday": 0,
+      "assoc_cat": "JJ",
+      "assoc_date_ind": "S",
+      "assoc_location": "CLPHMJC",
+      "base_location_suffix": "",
+      "assoc_location_suffix": "",
+      "association_type": "P",
+      "stp_indicator": "P"
+    }
+  ],
+  "fixed_link": [
+    {
+      "id": 1,
+      "mode": "TUBE",
+      "origin": "BTN",
+      "destination": "CLJ",
+      "duration": 5
+    },
+    {
+      "id": 2,
+      "mode": "WALK",
+      "origin": "CLJ",
+      "destination": "VIC",
+      "duration": 12
+    }
+  ],
+  "physical_station": [
+    {
+      "id": 1,
+      "station_name": "                         F",
+      "cate_interchange_status": null,
+      "tiploc_code": "PEC=05",
+      "crs_reference_code": "1.0",
+      "crs_code": "0/1",
+      "easting": 1,
+      "northing": 8,
+      "minimum_change_time": 11
+    },
+    {
+      "id": 2,
+      "station_name": "BRIGHTON",
+      "cate_interchange_status": 0,
+      "tiploc_code": "BTN",
+      "crs_reference_code": "BTN",
+      "crs_code": "BTN",
+      "easting": 15305,
+      "northing": 61045,
+      "minimum_change_time": 5
+    },
+    {
+      "id": 3,
+      "station_name": "LONDON VICTORIA",
+      "cate_interchange_status": 0,
+      "tiploc_code": "VICTRIC",
+      "crs_reference_code": "VIC",
+      "crs_code": "VIC",
+      "easting": 15290,
+      "northing": 61787,
+      "minimum_change_time": 10
+    },
+    {
+      "id": 4,
+      "station_name": "CLAPHAM JUNCTION",
+      "cate_interchange_status": 0,
+      "tiploc_code": "CLPHMJC",
+      "crs_reference_code": "CLJ",
+      "crs_code": "CLJ",
+      "easting": 15272,
+      "northing": 61752,
+      "minimum_change_time": 7
+    }
+  ],
+  "schedule": [
+    {
+      "id": 2,
+      "train_uid": "C00001",
+      "runs_from": "2025-06-20",
+      "runs_to": "2025-06-20",
+      "monday": 0,
+      "tuesday": 0,
+      "wednesday": 0,
+      "thursday": 0,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0,
+      "bank_holiday_running": 1,
+      "train_status": "P",
+      "train_category": "OO",
+      "train_identity": "2N75",
+      "headcode": "1221",
+      "course_indicator": "1",
+      "profit_center": "39000",
+      "business_sector": null,
+      "power_type": "EMU",
+      "timing_load": null,
+      "speed": "090",
+      "operating_chars": null,
+      "train_class": "S",
+      "sleepers": null,
+      "reservations": null,
+      "connect_indicator": null,
+      "catering_code": null,
+      "service_branding": null,
+      "stp_indicator": "C"
+    },
+    {
+      "id": 4,
+      "train_uid": "C00001",
+      "runs_from": "2025-06-01",
+      "runs_to": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0,
+      "bank_holiday_running": 1,
+      "train_status": "P",
+      "train_category": "OO",
+      "train_identity": "2N99",
+      "headcode": "1221",
+      "course_indicator": "1",
+      "profit_center": "39000",
+      "business_sector": null,
+      "power_type": "EMU",
+      "timing_load": null,
+      "speed": "090",
+      "operating_chars": null,
+      "train_class": "S",
+      "sleepers": null,
+      "reservations": null,
+      "connect_indicator": null,
+      "catering_code": null,
+      "service_branding": null,
+      "stp_indicator": "P"
+    }
+  ],
+  "schedule_extra": [
+    {
+      "id": 3,
+      "schedule": 4,
+      "traction_class": null,
+      "uic_code": null,
+      "atoc_code": "SN",
+      "applicable_timetable_code": "Y",
+      "retail_train_id": "SN999900",
+      "source": "Y"
+    }
+  ],
+  "service_change": [
+    {
+      "id": 1,
+      "stop": 3,
+      "location": "CLPHMJC",
+      "suffix": null,
+      "train_category": "XX",
+      "train_identity": "2N76",
+      "headcode": null,
+      "course_indicator": "1",
+      "profit_center": "39000",
+      "business_sector": null,
+      "power_type": "EMU",
+      "timing_load": null,
+      "speed": "090",
+      "operating_chars": null,
+      "train_class": "S",
+      "sleepers": null,
+      "reservations": null,
+      "connect_indicator": null,
+      "catering_code": null,
+      "service_branding": null,
+      "traction_class": null,
+      "uic_code": null,
+      "retail_train_id": null
+    }
+  ],
+  "stop_time": [],
+  "tiploc": [
+    {
+      "id": 1,
+      "tiploc_code": "BRGHTN",
+      "capitals": "00",
+      "nalco": "187300",
+      "nlc_check_character": "A",
+      "tps_description": "BRIGHTON",
+      "stanox": "87800",
+      "po_mcp_code": 0,
+      "crs_code": "BTN",
+      "description": "BRIGHTON"
+    },
+    {
+      "id": 2,
+      "tiploc_code": "VICTRIC",
+      "capitals": "00",
+      "nalco": "187300",
+      "nlc_check_character": "A",
+      "tps_description": "LONDON VICTORIA",
+      "stanox": "87201",
+      "po_mcp_code": 0,
+      "crs_code": "VIC",
+      "description": "LONDON VICTORIA"
+    },
+    {
+      "id": 3,
+      "tiploc_code": "CLPHMJC",
+      "capitals": "00",
+      "nalco": "187300",
+      "nlc_check_character": "A",
+      "tps_description": "CLAPHAM JUNCTION",
+      "stanox": "87219",
+      "po_mcp_code": 0,
+      "crs_code": "CLJ",
+      "description": "CLAPHAM JUNCTION"
+    },
+    {
+      "id": 4,
+      "tiploc_code": "GTWK",
+      "capitals": "00",
+      "nalco": "187300",
+      "nlc_check_character": "A",
+      "tps_description": "GATWICK AIRPORT",
+      "stanox": "87219",
+      "po_mcp_code": 0,
+      "crs_code": "GTW",
+      "description": "GATWICK AIRPORT"
+    }
+  ],
+  "toc_interchange": [
+    {
+      "id": 1,
+      "crs": "BTN",
+      "from_toc": "SN",
+      "to_toc": "GW",
+      "time": 10
+    },
+    {
+      "id": 2,
+      "crs": "CLJ",
+      "from_toc": "SN",
+      "to_toc": "SW",
+      "time": 5
+    }
+  ],
+  "z_schedule": [
+    {
+      "id": 1,
+      "train_uid": "Z00001",
+      "runs_from": "2025-06-01",
+      "runs_to": "2025-12-13",
+      "monday": 1,
+      "tuesday": 1,
+      "wednesday": 1,
+      "thursday": 1,
+      "friday": 1,
+      "saturday": 0,
+      "sunday": 0,
+      "bank_holiday_running": 1,
+      "train_status": "P",
+      "train_category": "OO",
+      "train_identity": "9Z01",
+      "headcode": "9Z01",
+      "course_indicator": "1",
+      "profit_center": "39000",
+      "business_sector": null,
+      "power_type": "DMU",
+      "timing_load": null,
+      "speed": "075",
+      "operating_chars": null,
+      "train_class": "S",
+      "sleepers": null,
+      "reservations": null,
+      "connect_indicator": null,
+      "catering_code": null,
+      "service_branding": null,
+      "stp_indicator": "P"
+    }
+  ],
+  "z_schedule_extra": [
+    {
+      "id": 1,
+      "schedule": 1,
+      "atoc_code": "SN"
+    }
+  ],
+  "z_stop_time": [
+    {
+      "id": 1,
+      "z_schedule": 1,
+      "location": "BTN",
+      "scheduled_arrival_time": null,
+      "scheduled_departure_time": "09:00:00",
+      "scheduled_pass_time": null,
+      "public_arrival_time": null,
+      "public_departure_time": "09:00:00",
+      "platform": "3",
+      "line": null,
+      "path": null,
+      "activity": "TB          ",
+      "engineering_allowance": null,
+      "pathing_allowance": null,
+      "performance_allowance": null
+    },
+    {
+      "id": 2,
+      "z_schedule": 1,
+      "location": "CLJ",
+      "scheduled_arrival_time": "09:45:00",
+      "scheduled_departure_time": "09:46:00",
+      "scheduled_pass_time": null,
+      "public_arrival_time": "09:45:00",
+      "public_departure_time": "09:46:00",
+      "platform": "9",
+      "line": null,
+      "path": null,
+      "activity": "T           ",
+      "engineering_allowance": null,
+      "pathing_allowance": null,
+      "performance_allowance": null
+    },
+    {
+      "id": 3,
+      "z_schedule": 1,
+      "location": "VIC",
+      "scheduled_arrival_time": "10:05:00",
+      "scheduled_departure_time": null,
+      "scheduled_pass_time": null,
+      "public_arrival_time": "10:05:00",
+      "public_departure_time": null,
+      "platform": "12",
+      "line": null,
+      "path": null,
+      "activity": "TF          ",
+      "engineering_allowance": null,
+      "pathing_allowance": null,
+      "performance_allowance": null
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+# the feed fixtures are fixed width, so their bytes have to survive a checkout unchanged
+test/integration/fixture/** -text

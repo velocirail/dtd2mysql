@@ -58,10 +58,11 @@ export class OutputGTFSCommand implements CLICommand {
       calendarP,
       calendarDatesP,
       tripsP,
-      fixedLinksP,
-      this.repository.end(),
-      this.output.end()
+      fixedLinksP
     ]);
+
+    // the files are only opened as their rows arrive, so this waits for them rather than racing them
+    await Promise.all([this.repository.end(), this.output.end()]);
   }
 
   /**

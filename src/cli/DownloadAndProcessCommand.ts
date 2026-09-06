@@ -10,10 +10,13 @@ export class DownloadAndProcessCommand implements CLICommand {
   ) {}
 
   /**
-   * Download and process the feed in one command
+   * Download and process the feed in one command.
+   *
+   * The download is asked for the files rather than run as a command of its own, as the import still has
+   * the connection they were worked out through to finish with.
    */
   public async run(argv: string[]): Promise<any> {
-    const files = await this.download.run([]);
+    const files = await this.download.download(argv[3] || "/tmp/");
 
     for (const filename of files) {
       try {
@@ -30,5 +33,5 @@ export class DownloadAndProcessCommand implements CLICommand {
 }
 
 export interface FileProvider {
-  run(args: any[]): Promise<string[]>;
+  download(outputDirectory: string): Promise<string[]>;
 }

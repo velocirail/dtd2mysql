@@ -1,0 +1,12 @@
+{
+  "nfm64": [
+    {
+      "id": 1,
+      "origin": "AAAA",
+      "destination": "AAAA",
+      "route_code": "AAAAA",
+      "ticket_code": "SOS",
+      "price": 111111
+    }
+  ]
+}

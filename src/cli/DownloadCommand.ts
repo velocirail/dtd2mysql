@@ -1,27 +1,35 @@
 import {CLICommand} from "./CLICommand";
+import {FileProvider} from "./DownloadAndProcessCommand";
 import {PromiseSFTP} from "../sftp/PromiseSFTP";
-import {DatabaseConnection} from "../database/DatabaseConnection";
+import {Kysely} from "kysely";
+import {Database} from "../database/Database";
+import {LOG_TABLE} from "../database/SchemaBuilder";
 import { FileEntry } from "ssh2";
 
-interface LogEntry {
-  id: number,
-  filename: string | null,
-  processed: string | null,
-}
-
-export class DownloadCommand implements CLICommand {
+export class DownloadCommand implements CLICommand, FileProvider {
 
   constructor(
-    private readonly db: DatabaseConnection,
+    private readonly db: Kysely<Database>,
     private readonly sftp: PromiseSFTP,
     private readonly directory: string
   ) {}
 
   /**
-   * Download the latest refresh file from an SFTP server
+   * On its own the download is the whole command, so the connection it read the log through is closed
+   * afterwards. Downloading as part of an import leaves that to the import, see DownloadAndProcessCommand.
    */
   public async run(argv: string[]): Promise<string[]> {
-    const outputDirectory = argv[3] || "/tmp/";
+    const files = await this.download(argv[3] || "/tmp/");
+
+    await this.end();
+
+    return files;
+  }
+
+  /**
+   * Download the latest refresh file from an SFTP server
+   */
+  public async download(outputDirectory: string): Promise<string[]> {
     const [remoteFiles, lastProcessedFile] = await Promise.all([
       this.sftp.readdir(this.directory),
       this.getLastProcessedFile()
@@ -50,11 +58,27 @@ export class DownloadCommand implements CLICommand {
     return files.map(filename => outputDirectory + filename);
   }
 
+  /**
+   * Close the underlying database connection
+   */
+  public async end(): Promise<void> {
+    await this.db.destroy();
+  }
+
+  /**
+   * The last file an import recorded, or nothing at all when no feed has been imported yet and the table
+   * the imports write to does not exist
+   */
   private async getLastProcessedFile(): Promise<string | undefined> {
     try {
-      const [[log]] = await this.db.query<LogEntry>("SELECT * FROM log ORDER BY id DESC LIMIT 1");
+      const [log] = await this.db
+        .selectFrom(LOG_TABLE)
+        .select("filename")
+        .orderBy("id", "desc")
+        .limit(1)
+        .execute();
 
-      return log.filename !== null ? log.filename : undefined;
+      return log?.filename ?? undefined;
     }
     catch (err) {
       return undefined;
